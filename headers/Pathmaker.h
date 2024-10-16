@@ -20,6 +20,10 @@ private:
 
     std::vector<Curve> curves;
 
+    std::vector<glm::vec3> tangentVectors;
+
+    std::vector<glm::vec3> secDerVectors;
+
     Shader *shader;
 
     Camera *camera;
@@ -30,6 +34,10 @@ private:
 
     void makeInterpolationCurve();
 
+    void makeBSplineCurve();
+    
+    void makeTangents();
+
     float factorial(float n);
 
 public:
@@ -38,9 +46,13 @@ public:
 
     void remakeCurves();
 
-    void renderCurves();
+    void renderCurves(int firstCurveIdx, int lastCurveIdx);
 
     bool bReadyToAnimate;
 
     Curve *getAnimationCurve();
+
+    std::vector<glm::vec3> *getAnimationTangents();
+
+    std::vector<glm::vec3> *getAnimationSecDer();
 };

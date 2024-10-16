@@ -26,6 +26,10 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height, InputPro
 
     windowHeight = height;
 
+    bSetToAnimate = false;
+
+    bAnimating = false;
+
     glfwSetWindowUserPointer(inWindow, this);
     glfwSetKeyCallback(inWindow, keyCallbackStatic);
 
@@ -51,7 +55,13 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
 	} else if (key == GLFW_KEY_E) {
 		if (action == GLFW_PRESS) bDown = true;
 		else if (action == GLFW_RELEASE) bDown = false;
-	}
+	} else if (key == GLFW_KEY_ENTER) {
+        if (action == GLFW_PRESS) {
+            if (bAnimating) bAnimating = false;
+            else bSetToAnimate = true;
+        }
+        else if (action == GLFW_RELEASE) bAnimating = true;
+    }
 }
 
 void InputManager::keyCallbackStatic(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -70,6 +80,15 @@ void InputManager::handleInput(Transformable *transformable, bool inFocus) {
 
     movementVector = glm::vec3(0.0f, 0.0f, 0.0f);
     rotationMatrix = glm::mat4(1.0f);
+
+    if (bSetToAnimate) {
+        animator->moveToStartingPosition();
+        bSetToAnimate = false;
+    }
+
+    if (bAnimating) {
+	    bAnimating = animator->animate();
+    }
 }
 
 void InputManager::handleKeyboardInput(Transformable *transformable) {
@@ -99,4 +118,9 @@ void InputManager::handleMouseInput(Transformable *transformable, bool inFocus) 
             glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
         }
 	}
+}
+
+void InputManager::addAnimator(Animator *inAnimator) {
+
+    animator = inAnimator;
 }

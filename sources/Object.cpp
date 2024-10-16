@@ -32,21 +32,24 @@ void Object::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 persp
         glUniformMatrix4fv(uniformLocationView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(uniformLocationPerspective, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 
-        glUniform3fv(uniformLocationAK, 1, glm::value_ptr(material->ambientKoeficient));
-        glUniform3fv(uniformLocationDK, 1, glm::value_ptr(material->diffuseKoeficient));
-        glUniform3fv(uniformLocationSK, 1, glm::value_ptr(material->specularKoeficient));
-        glUniform1f(uniformLocationN, material->gloss);
-
         glUniformMatrix4fv(uniformLightView, 1, GL_FALSE, glm::value_ptr(viewLightMatrix));
         glUniformMatrix4fv(uniformLightPerspective, 1, GL_FALSE, glm::value_ptr(perspectiveLightMatrix));
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, material->getDiffuseTexture()->getTextureID());
-        glUniform1i(glGetUniformLocation(shader->ID, "diffuseMap"), 0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, shadowTexID);
-        glUniform1i(glGetUniformLocation(shader->ID, "shadowMap"), 1);
-        
+        if (material) {
+            glUniform3fv(uniformLocationAK, 1, glm::value_ptr(material->ambientKoeficient));
+            glUniform3fv(uniformLocationDK, 1, glm::value_ptr(material->diffuseKoeficient));
+            glUniform3fv(uniformLocationSK, 1, glm::value_ptr(material->specularKoeficient));
+            glUniform1f(uniformLocationN, material->gloss);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material->getDiffuseTexture()->getTextureID());
+            glUniform1i(glGetUniformLocation(shader->ID, "diffuseMap"), 0);
+        }
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, shadowTexID);
+            glUniform1i(glGetUniformLocation(shader->ID, "shadowMap"), 1);
+
         glBindVertexArray(mesh->VAO);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, (GLvoid *) 0);

@@ -8,13 +8,17 @@ class Animator {
 
 public:
 
-    Animator(Transformable *inTransformable, Curve *inCurve);
+    Animator(Transformable *inTransformable, Curve *inCurve, std::vector<glm::vec3> *inTangents, std::vector<glm::vec3> *inSecDer);
 
 private:
 
     Transformable *transformable;
 
     Curve *curve;
+
+    std::vector<glm::vec3> *tangents;
+
+    std::vector<glm::vec3> *secDer;
 
     int currAnimIdx;
 
@@ -36,8 +40,13 @@ private:
 
     glm::vec3 newUp;
 
+    bool bSetToAnimate;
+
+    int frameCounter;
 
 public:
+
+    void moveToStartingPosition();
 
     bool animate();
 

@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include "InputProfile.h"
 #include "Transformable.h"
+#include "Animator.h"
 
 class InputManager {
 
@@ -31,6 +32,12 @@ private:
 
     int windowHeight;
 
+    Animator *animator;
+
+    bool bSetToAnimate;
+
+    bool bAnimating;
+
 public:
 
     InputProfile currentInputProfile;
@@ -48,5 +55,7 @@ public:
     void handleKeyboardInput(Transformable *transformable);
 
     void handleMouseInput(Transformable *transformable, bool inFocus);
+
+    void addAnimator(Animator *inAnimator);
 
 };

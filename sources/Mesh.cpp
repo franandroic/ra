@@ -2,6 +2,11 @@
 
 Mesh::Mesh(aiMesh *mesh) {
 
+    if (!mesh) {
+        std::cerr << "Error: mesh is null" << std::endl;
+        return;
+    }
+
     for (int i = 0; i < mesh->mNumVertices; i++) {
         vertices.push_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
     }
@@ -12,12 +17,16 @@ Mesh::Mesh(aiMesh *mesh) {
         }
     }
 
-    for (int i = 0; i < mesh->mNumVertices; i++) {
-        normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+    if (mesh->HasNormals()) {
+        for (int i = 0; i < mesh->mNumVertices; i++) {
+            normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+        }
     }
 
-    for (int i = 0; i < mesh->mNumVertices; i++) {
-        uvCoords.push_back(glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y));
+    if (mesh->HasTextureCoords(0)) {
+        for (int i = 0; i < mesh->mNumVertices; i++) {
+            uvCoords.push_back(glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y));
+        }
     }
 
     //generiranje spremnika
@@ -80,15 +89,19 @@ void Mesh::draw() {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
 		glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-        glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &(normals[0]), GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
-        glEnableVertexAttribArray(1);
+        if (normals.size() > 0) {
+            glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+            glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &(normals[0]), GL_STATIC_DRAW);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
+            glEnableVertexAttribArray(1);
+        }
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-        glBufferData(GL_ARRAY_BUFFER, uvCoords.size() * sizeof(glm::vec2), &(uvCoords[0]), GL_STATIC_DRAW);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
-        glEnableVertexAttribArray(2);
+        if (uvCoords.size() > 0) {
+            glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+            glBufferData(GL_ARRAY_BUFFER, uvCoords.size() * sizeof(glm::vec2), &(uvCoords[0]), GL_STATIC_DRAW);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
+            glEnableVertexAttribArray(2);
+        }
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), &(indices[0]), GL_STATIC_DRAW);

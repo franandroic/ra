@@ -1,50 +1,62 @@
 #include "../headers/Animator.h"
 
-Animator::Animator(Transformable *inTransformable, Curve *inCurve) {
+Animator::Animator(Transformable *inTransformable, Curve *inCurve, std::vector<glm::vec3> *inTangents, std::vector<glm::vec3> *inSecDer) {
 
     transformable = inTransformable;
     curve = inCurve;
+    tangents = inTangents;
+    secDer = inSecDer;
 
-    currAnimIdx = 0;
     nextAnimIdx = 1;
-
-    currAnimPos = glm::vec3(0.0, 0.0, 0.0);
-    nextAnimPos = glm::vec3(0.0, 0.0, 0.0);
-
-    oldFront = transformable->getFront();
-    oldRight = transformable->getRight();
-    oldUp = transformable->getUp();
 
     newFront = glm::vec3(0.0, 0.0, 0.0);
     newRight = glm::vec3(0.0, 0.0, 0.0);
     newUp = glm::vec3(0.0, 0.0, 0.0);
 
+    bSetToAnimate = false;
+
+    frameCounter = 0;
+}
+
+void Animator::moveToStartingPosition() {
+
+    transformable->setPosition(curve->getVertex(0));
+
+    newFront = (*tangents)[0];
+    newUp = glm::cross((*tangents)[0], (*secDer)[0]);
+    newRight = glm::cross(newFront, newUp);
+    transformable->setOrientation(newFront, newUp, newRight);
+
+    bSetToAnimate = true;
 }
 
 bool Animator::animate() {
 
-    if (currAnimIdx == curve->countVertices() - 1) {
+    if (!bSetToAnimate) return false;
 
-        currAnimIdx = 0;
-        nextAnimIdx = 0;
+    if (nextAnimIdx == curve->countVertices()) {
 
+        nextAnimIdx = 1;
         return false;
 
     } else {
 
-        currAnimPos = curve->getVertex(currAnimIdx);
-        nextAnimPos = curve->getVertex(nextAnimIdx);
-        transformable->globalMove(0.002f * glm::normalize(nextAnimPos - currAnimPos));
+        if (frameCounter >= 30) {
 
-        newFront = glm::normalize(currAnimPos - nextAnimPos);
-        newRight = glm::normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), newFront));
-        newUp = glm::cross(newFront, newRight);
-        transformable->setOrientation(newFront, newUp, newRight);
+            transformable->setPosition(curve->getVertex(nextAnimIdx));
 
-        if (glm::distance(transformable->getPosition(), nextAnimPos) <= 0.005f) {
-            transformable->setPosition(nextAnimPos);
-            currAnimIdx++;
+            newFront = (*tangents)[nextAnimIdx];
+            newUp = glm::cross((*tangents)[nextAnimIdx], (*secDer)[nextAnimIdx]);
+            newRight = glm::cross(newFront, newUp);
+            transformable->setOrientation(newFront, newUp, newRight);
+
             nextAnimIdx++;
+            frameCounter = 0;
+
+        } else {
+
+            frameCounter++;
+        
         }
 
         return true;

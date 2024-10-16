@@ -106,8 +106,83 @@ void Pathmaker::makeInterpolationCurve() {
     curve.color = glm::vec3(0.2, 0.2, 1.0);
 
     curves.push_back(curve);
+}
 
-    bReadyToAnimate = true;
+void Pathmaker::makeBSplineCurve() {
+
+    if (controlVertices.size() < 4) return;
+
+    Curve curve(controlVertices);
+
+    int n = controlVertices.size();
+
+    glm::mat4 B(-1.0f, 3.0f, -3.0f, 1.0f,
+                3.0f, -6.0f, 0.0f, 4.0f,
+                -3.0f, 3.0f, 3.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 0.0f);
+
+    B = (1.0f / 6.0f) * B;
+
+    std::vector<glm::vec3> lastFour;
+    glm::mat4 R;
+    glm::mat4 BR;
+    float t;
+    glm::vec4 T;
+    glm::vec4 p;
+
+    for (int idx = 0; idx < n - 3; idx++) {
+
+        lastFour.clear();
+
+        lastFour.push_back(controlVertices[idx]);
+        lastFour.push_back(controlVertices[idx + 1]);
+        lastFour.push_back(controlVertices[idx + 2]);
+        lastFour.push_back(controlVertices[idx + 3]);
+
+        R = glm::mat4(glm::vec4(lastFour[0], 0.0f),
+                      glm::vec4(lastFour[1], 0.0f),
+                      glm::vec4(lastFour[2], 0.0f),
+                      glm::vec4(lastFour[3], 0.0f));
+
+        BR = B * glm::transpose(R);
+
+        for (int i = 0; i < 20; i++) {
+
+            t = (1.0f / 20.0f) * i;
+            
+            T = glm::vec4(glm::pow(t, 3), glm::pow(t, 2), t, 1);
+            p = T * BR;
+            curve.addVertex(glm::vec3(p));
+
+            T = glm::vec4(3 * glm::pow(t, 2), 2 * t, 1, 0);
+            p = T * BR;
+            tangentVectors.push_back(glm::normalize(glm::vec3(p)));
+
+            T = glm::vec4(6 * t, 2, 0, 0);
+            p = T * BR;
+            secDerVectors.push_back(glm::normalize(glm::vec3(p)));
+        }
+    }
+
+    curve.color = glm::vec3(0.8, 0.1, 0.1);
+
+    curves.push_back(curve);
+}
+
+void Pathmaker::makeTangents() {
+
+    if (curves.size() < 4) return;
+
+    Curve tangents;
+
+    for (int i = 0; i < tangentVectors.size(); i += 10) {
+        tangents.addVertex(curves[3].getVertex(i));
+        tangents.addVertex(curves[3].getVertex(i) + 0.5f * tangentVectors[i]);
+    }
+
+    tangents.color = glm::vec3(0.9, 0.9, 0.0);
+
+    curves.push_back(tangents);
 }
 
 void Pathmaker::remakeCurves() {
@@ -118,15 +193,21 @@ void Pathmaker::remakeCurves() {
     makeControlPolygon();
     makeApproximationCurve();
     makeInterpolationCurve();
+    makeBSplineCurve();
+    makeTangents();
 
     for (int i = 0; i < curves.size(); i++) {
         curves[i].draw();
     }
+
+    bReadyToAnimate = true;
 }
 
-void Pathmaker::renderCurves() {
+void Pathmaker::renderCurves(int firstCurveIdx, int lastCurveIdx) {
 
-    for (int i = 0; i < curves.size(); i++) {
+    if (lastCurveIdx > curves.size() - 1) return;
+
+    for (int i = firstCurveIdx; i <= lastCurveIdx; i++) {
 
         GLint uniformLocationView = glGetUniformLocation(shader->ID, "viewMatrix");
         GLint uniformLocationPerspective = glGetUniformLocation(shader->ID, "perspectiveMatrix");
@@ -137,7 +218,8 @@ void Pathmaker::renderCurves() {
         glUniformMatrix4fv(uniformLocationPerspective, 1, GL_FALSE, glm::value_ptr(camera->getPerspectiveMatrix()));
         glUniform3f(uniformLocationColor, curves[i].color.x, curves[i].color.y, curves[i].color.z);
         glBindVertexArray(curves[i].VAO);
-        glDrawArrays(GL_LINE_STRIP, 0, curves[i].countVertices());
+        if (i == 4) glDrawArrays(GL_LINES, 0, curves[i].countVertices());
+        else glDrawArrays(GL_LINE_STRIP, 0, curves[i].countVertices());
         glBindVertexArray(0);
         glUseProgram(0);
 
@@ -157,5 +239,15 @@ float Pathmaker::factorial(float n) {
 
 Curve *Pathmaker::getAnimationCurve() {
 
-    return &curves[2];
+    return &curves[3];
+}
+
+std::vector<glm::vec3> *Pathmaker::getAnimationTangents() {
+
+    return &tangentVectors;
+}
+
+std::vector<glm::vec3> *Pathmaker::getAnimationSecDer() {
+
+    return &secDerVectors;
 }

@@ -50,7 +50,7 @@ float isInShadow(vec4 sPos)
 {
     vec3 projectedSPos = (sPos.xyz / sPos.w) * 0.5 + 0.5;
 
-    if (projectedSPos.z > (texture(shadowMap, projectedSPos.xy).r)) return 1.0;
+    if (projectedSPos.z > (texture(shadowMap, projectedSPos.xy).r) + 0.1) return 1.0;
 
     return 0.0;
 }

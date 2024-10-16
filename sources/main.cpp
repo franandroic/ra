@@ -40,6 +40,7 @@ const int mHeight = 800;
 bool inFocus = true;
 
 //upravljanje krivuljama
+bool bSetToAnimate = false;
 bool bAnimating = false;
 
 //parametri za toon sjencanje
@@ -148,7 +149,7 @@ int main(int argc, char *argv[]) {
 	std::string resPath(dirPath);
 	resPath.append("\\resources");
 	std::string objPath(resPath);
-	objPath.append("\\glava\\glava.obj");
+	objPath.append("\\f16\\f16.obj");
 
 	const aiScene* scene = importer.ReadFile(objPath.c_str(),
 		aiProcess_CalcTangentSpace |
@@ -175,7 +176,7 @@ int main(int argc, char *argv[]) {
 	camera.rotate(glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0)));
 
 	//stvaramo izvor svjetla
-	Light light(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0));
+	Light light(glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
 	light.globalMove(glm::vec3(0.0, 5.0, 5.0));
 
 	//stvaramo reflektorski izvor svjetla
@@ -230,7 +231,9 @@ int main(int argc, char *argv[]) {
 			stbi_image_free(data);
 		}
 
-	} else std::cout << "No set materials." << std::endl;
+	} else {
+		std::cout << "No set materials." << std::endl;
+	}
 
 	//ucitavanje sjencara
 	Shader *sjencar[4];
@@ -267,48 +270,53 @@ int main(int argc, char *argv[]) {
 	mesh.normalize();
 
 	//od Shadera, Mesha i Materijala stvaramo objekte, transformiramo ih i dodajemo u crtaca
-	Object object_left(&mesh, sjencar[0], &material, sjencar[3]);
-	object_left.setScale(glm::vec3(3.0, 3.0, 3.0));
-	renderer.registerObject(&object_left);
-
-	Object object_right(&mesh, sjencar[0], &material, sjencar[3]);
-	object_right.setScale(glm::vec3(0.5, 0.5, 0.5));
-	object_right.rotate(MyGLM::rotate3D('z', 45));
-	object_right.globalMove(glm::vec3(0.5, 0.0, 3.5));
-	renderer.registerObject(&object_right);
+	Object object(&mesh, sjencar[1], nullptr, sjencar[3]);
+	object.setScale(glm::vec3(0.5, 0.5, 0.5));
+	object.globalMove(glm::vec3(0.0, -2.0, 0.0));
+	renderer.registerObject(&object);
 
 	//stvaramo crtaca putanje
 	Pathmaker pathmaker(sjencar[2], &camera);
-	pathmaker.setControlPoint(object_right.getPosition());
-	pathmaker.setControlPoint(object_right.getPosition() + glm::vec3(0.0, 2.0, 1.0));
-	pathmaker.setControlPoint(object_right.getPosition() + glm::vec3(1.0, 3.0, 1.0));
-	pathmaker.setControlPoint(object_right.getPosition() + glm::vec3(3.0, 3.0, 3.0));
+	/*
+	pathmaker.setControlPoint(glm::vec3(-1.0, 0.0, -1.0));
+	pathmaker.setControlPoint(glm::vec3(-2.0, -1.0, -2.0));
+	pathmaker.setControlPoint(glm::vec3(-2.0, -1.0, 0.0));
+	pathmaker.setControlPoint(glm::vec3(0.0, 2.0, 1.0));
+	pathmaker.setControlPoint(glm::vec3(1.0, 3.0, 1.0));
+	pathmaker.setControlPoint(glm::vec3(3.0, 3.0, 3.0));
+	pathmaker.setControlPoint(glm::vec3(3.0, 3.0, -1.0));
+	pathmaker.setControlPoint(glm::vec3(-5.0, -5.0, -5.0));
+	pathmaker.setControlPoint(glm::vec3(1.0, 1.0, 1.0));
+	*/
+	pathmaker.setControlPoint(glm::vec3(0, 0, 0));
+	pathmaker.setControlPoint(glm::vec3(0, 10, 5));
+	pathmaker.setControlPoint(glm::vec3(10, 10, 10));
+	pathmaker.setControlPoint(glm::vec3(10, 0, 15));
+	pathmaker.setControlPoint(glm::vec3(0, 0, 20));
+	pathmaker.setControlPoint(glm::vec3(0, 10, 25));
+	pathmaker.setControlPoint(glm::vec3(10, 10, 30));
+	pathmaker.setControlPoint(glm::vec3(10, 0, 35));
+	pathmaker.setControlPoint(glm::vec3(0, 0, 40));
+	pathmaker.setControlPoint(glm::vec3(0, 10, 45));
+	pathmaker.setControlPoint(glm::vec3(10, 10, 50));
+	pathmaker.setControlPoint(glm::vec3(10, 0, 55));
 	pathmaker.remakeCurves();
 
 	//stvaramo animatora
-	Animator animator(&object_right, pathmaker.getAnimationCurve());
-	bAnimating = true;
+	Animator animator(&object, pathmaker.getAnimationCurve(), pathmaker.getAnimationTangents(), pathmaker.getAnimationSecDer());
+
+	inputManager.addAnimator(&animator);
 
 	//glavna petlja
 	while(glfwWindowShouldClose(window) == false) {
 
-		FPSManager.maintainFPS();
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if(bAnimating) {
+		FPSManager.maintainFPS();
 
-			if (!pathmaker.bReadyToAnimate) bAnimating = false;
-			else bAnimating = animator.animate();
-			
-		} else {
-
-			inputManager.handleInput(renderer.camera, inFocus);
-
-		}
+		inputManager.handleInput(renderer.camera, inFocus);
 
 		//iscrtavanje objekta
-		
 		glUseProgram(sjencar[0]->ID);
 			glUniform3f(uniformEyePosLocation, renderer.camera->getEyePos().x, renderer.camera->getEyePos().y, renderer.camera->getEyePos().z);
 		glUseProgram(0);
@@ -321,10 +329,11 @@ int main(int argc, char *argv[]) {
 
 		glViewport(0, 0, mWidth, mHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		renderer.renderObjects();
 
 		//iscrtavanje krivulja
-		pathmaker.renderCurves();
+		pathmaker.renderCurves(3, 4);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
