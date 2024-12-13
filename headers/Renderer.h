@@ -8,6 +8,7 @@
 #include "Curve.h"
 #include "Light.h"
 #include "ReflectorLight.h"
+#include "PaSpObject.h"
 
 class Renderer {
 
@@ -32,6 +33,8 @@ public:
 
     std::vector<Object *> objects;
 
+    std::vector<PaSpObject *> paspObjects;
+
     Camera *camera;
 
     Light *light;
@@ -42,11 +45,17 @@ public:
 
     void renderObjects();
 
+    void renderPaspObjects();
+
     void renderShadowMap();
 
     void registerObject(Object *object);
 
+    void registerPaspObject(PaSpObject *paspObject);
+
     int countObjects();
+
+    int countPaspObjects();
 
     void setReflectorLight(ReflectorLight *newRefLight);
 

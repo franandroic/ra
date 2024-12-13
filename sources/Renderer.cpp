@@ -29,6 +29,13 @@ void Renderer::renderObjects() {
     }
 }
 
+void Renderer::renderPaspObjects() {
+
+    for (int i = 0; i < paspObjects.size(); i++) {
+        paspObjects[i]->render(paspObjects[i]->getModelMatrix(), camera->getViewMatrix(), camera->getPerspectiveMatrix());
+    }
+}
+
 void Renderer::renderShadowMap() {
 
     for (int i = 0; i < objects.size(); i++) {
@@ -52,9 +59,19 @@ void Renderer::registerObject(Object *object) {
     objects.push_back(object);
 }
 
+void Renderer::registerPaspObject(PaSpObject *paspObject) {
+
+    paspObjects.push_back(paspObject);
+}
+
 int Renderer::countObjects() {
 
     return objects.size();
+}
+
+int Renderer::countPaspObjects() {
+
+    return paspObjects.size();
 }
 
 void Renderer::setReflectorLight(ReflectorLight *newRefLight) {

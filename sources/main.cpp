@@ -15,6 +15,8 @@
 #include "../headers/Texture.h"
 #include "../headers/InputManager.h"
 #include "../headers/Animator.h"
+#include "../headers/ParticleSpawner.h"
+#include "../headers/PaSpObject.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -79,6 +81,7 @@ GLFWwindow *setupContext() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	//glFrontFace(GL_CW);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	
 	glfwSwapInterval(0);
 
@@ -138,6 +141,9 @@ int main(int argc, char *argv[]) {
 	//postavljanje callback funkcija
 	glfwSetWindowFocusCallback(window, focus_callback);
 
+	//postavljanje seed-a
+	srand(time(0));
+
 	//postavljanje upravitelja FPS-a
 	FPSManager FPSManager(window, 60, "BabyEngine");
     
@@ -149,7 +155,7 @@ int main(int argc, char *argv[]) {
 	std::string resPath(dirPath);
 	resPath.append("\\resources");
 	std::string objPath(resPath);
-	objPath.append("\\f16\\f16.obj");
+	objPath.append("\\glava\\glava.obj");
 
 	const aiScene* scene = importer.ReadFile(objPath.c_str(),
 		aiProcess_CalcTangentSpace |
@@ -236,11 +242,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	//ucitavanje sjencara
-	Shader *sjencar[4];
+	Shader *sjencar[5];
 	sjencar[0] = loadShader(argv[0], "shader0", true);
 	sjencar[1] = loadShader(argv[0], "shader1", true);
 	sjencar[2] = loadShader(argv[0], "shader2", true);
 	sjencar[3] = loadShader(argv[0], "shader3", true);
+	sjencar[4] = loadShader(argv[0], "shader4", true);
 
 	GLint uniformEyePosLocation = glGetUniformLocation(sjencar[0]->ID, "eyePos");
 
@@ -274,6 +281,12 @@ int main(int argc, char *argv[]) {
 	object.setScale(glm::vec3(0.5, 0.5, 0.5));
 	object.globalMove(glm::vec3(0.0, -2.0, 0.0));
 	renderer.registerObject(&object);
+
+	//stvaramo generator cestica
+	ParticleSpawner particleSpawner(0, 0, 0);
+	PaSpObject paspObject(&particleSpawner, sjencar[4]);
+	paspObject.loadParticles(10, paspObject.getPosition());
+	renderer.registerPaspObject(&paspObject);
 
 	//stvaramo crtaca putanje
 	Pathmaker pathmaker(sjencar[2], &camera);
@@ -332,6 +345,8 @@ int main(int argc, char *argv[]) {
 
 		renderer.renderObjects();
 
+		renderer.renderPaspObjects();
+
 		//iscrtavanje krivulja
 		pathmaker.renderCurves(3, 4);
 
@@ -344,9 +359,6 @@ int main(int argc, char *argv[]) {
 
 	//brisanje resursa pri zavrsetku izvodenja programa
 	delete sjencar;
-	glDeleteVertexArrays(1, &(mesh.VAO));
-	glDeleteBuffers(3, mesh.VBO);
-	glDeleteBuffers(1, &(mesh.EBO));
 
 	glfwTerminate();
 

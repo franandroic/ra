@@ -6,8 +6,6 @@
 #include <vector>
 #include "Renderable.h"
 
-#include <iostream>
-
 class Curve : public Renderable {
 
 public:
