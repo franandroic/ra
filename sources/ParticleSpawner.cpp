@@ -39,3 +39,13 @@ int ParticleSpawner::getHeight() {
 
     return height;
 }
+
+glm::vec3 ParticleSpawner::getParticlePositionAt(int pos) {
+
+    return particles[pos].getPosition();
+}
+
+glm::vec3 ParticleSpawner::getVertexAt(int pos) {
+
+    return vertices[pos];
+}

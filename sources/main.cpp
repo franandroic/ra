@@ -283,14 +283,16 @@ int main(int argc, char *argv[]) {
 	renderer.registerObject(&object);
 
 	//stvaramo generator cestica
-	ParticleSpawner particleSpawner(0, 0, 0);
-	PaSpObject paspObject(&particleSpawner, sjencar[4]);
-	paspObject.loadParticles(10, paspObject.getPosition());
+	ParticleSpawner particleSpawner(1, 1, 0);
+	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
+	paspObject.globalMove(glm::vec3(0.0, -2.0, 0.0));
+	paspObject.loadParticles(20, paspObject.getPosition());
 	renderer.registerPaspObject(&paspObject);
 
 	//stvaramo crtaca putanje
-	Pathmaker pathmaker(sjencar[2], &camera);
 	/*
+	Pathmaker pathmaker(sjencar[2], &camera);
+	
 	pathmaker.setControlPoint(glm::vec3(-1.0, 0.0, -1.0));
 	pathmaker.setControlPoint(glm::vec3(-2.0, -1.0, -2.0));
 	pathmaker.setControlPoint(glm::vec3(-2.0, -1.0, 0.0));
@@ -300,25 +302,13 @@ int main(int argc, char *argv[]) {
 	pathmaker.setControlPoint(glm::vec3(3.0, 3.0, -1.0));
 	pathmaker.setControlPoint(glm::vec3(-5.0, -5.0, -5.0));
 	pathmaker.setControlPoint(glm::vec3(1.0, 1.0, 1.0));
-	*/
-	pathmaker.setControlPoint(glm::vec3(0, 0, 0));
-	pathmaker.setControlPoint(glm::vec3(0, 10, 5));
-	pathmaker.setControlPoint(glm::vec3(10, 10, 10));
-	pathmaker.setControlPoint(glm::vec3(10, 0, 15));
-	pathmaker.setControlPoint(glm::vec3(0, 0, 20));
-	pathmaker.setControlPoint(glm::vec3(0, 10, 25));
-	pathmaker.setControlPoint(glm::vec3(10, 10, 30));
-	pathmaker.setControlPoint(glm::vec3(10, 0, 35));
-	pathmaker.setControlPoint(glm::vec3(0, 0, 40));
-	pathmaker.setControlPoint(glm::vec3(0, 10, 45));
-	pathmaker.setControlPoint(glm::vec3(10, 10, 50));
-	pathmaker.setControlPoint(glm::vec3(10, 0, 55));
 	pathmaker.remakeCurves();
 
 	//stvaramo animatora
 	Animator animator(&object, pathmaker.getAnimationCurve(), pathmaker.getAnimationTangents(), pathmaker.getAnimationSecDer());
 
 	inputManager.addAnimator(&animator);
+	*/
 
 	//glavna petlja
 	while(glfwWindowShouldClose(window) == false) {
@@ -348,7 +338,7 @@ int main(int argc, char *argv[]) {
 		renderer.renderPaspObjects();
 
 		//iscrtavanje krivulja
-		pathmaker.renderCurves(3, 4);
+		//pathmaker.renderCurves(3, 4);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

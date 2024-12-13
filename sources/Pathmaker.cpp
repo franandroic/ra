@@ -212,15 +212,17 @@ void Pathmaker::renderCurves(int firstCurveIdx, int lastCurveIdx) {
         GLint uniformLocationView = glGetUniformLocation(shader->ID, "viewMatrix");
         GLint uniformLocationPerspective = glGetUniformLocation(shader->ID, "perspectiveMatrix");
         GLint uniformLocationColor = glGetUniformLocation(shader->ID, "aColor");
-
+        
         glUseProgram(shader->ID);
-        glUniformMatrix4fv(uniformLocationView, 1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
-        glUniformMatrix4fv(uniformLocationPerspective, 1, GL_FALSE, glm::value_ptr(camera->getPerspectiveMatrix()));
-        glUniform3f(uniformLocationColor, curves[i].color.x, curves[i].color.y, curves[i].color.z);
-        glBindVertexArray(curves[i].VAO);
-        if (i == 4) glDrawArrays(GL_LINES, 0, curves[i].countVertices());
-        else glDrawArrays(GL_LINE_STRIP, 0, curves[i].countVertices());
-        glBindVertexArray(0);
+
+            glUniformMatrix4fv(uniformLocationView, 1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+            glUniformMatrix4fv(uniformLocationPerspective, 1, GL_FALSE, glm::value_ptr(camera->getPerspectiveMatrix()));
+            glUniform3f(uniformLocationColor, curves[i].color.x, curves[i].color.y, curves[i].color.z);
+            glBindVertexArray(curves[i].VAO);
+            if (i == 4) glDrawArrays(GL_LINES, 0, curves[i].countVertices());
+            else glDrawArrays(GL_LINE_STRIP, 0, curves[i].countVertices());
+            glBindVertexArray(0);
+            
         glUseProgram(0);
 
     }

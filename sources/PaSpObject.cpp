@@ -1,7 +1,8 @@
 #include "../headers/PaSpObject.h"
 
-PaSpObject::PaSpObject(ParticleSpawner *inPs, Shader *inShader) : Transformable(false) {
+PaSpObject::PaSpObject(glm::vec3 pos, ParticleSpawner *inPs, Shader *inShader) : Transformable(false) {
 
+    position = pos;
     particleSpawner = inPs;
     shader = inShader;
 
@@ -11,7 +12,7 @@ PaSpObject::PaSpObject(ParticleSpawner *inPs, Shader *inShader) : Transformable(
 }
 
 void PaSpObject::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) {
-
+    
     glUseProgram(shader->ID);
 
         glUniformMatrix4fv(uniformLocationModel, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -34,14 +35,12 @@ void PaSpObject::loadParticles(int count, glm::vec3 centerPos) {
 
     float tempX;
     float tempZ;
-    float tempMin;
-    float tempMax;
     Particle tempParticle;
 
     for (int i = 0; i < count; i++) {
-        tempX = -1 * (particleSpawner->getWidth() / 2) + (float)rand() * particleSpawner->getWidth();
-        tempZ = -1 * (particleSpawner->getHeight() / 2) + (float)rand() * particleSpawner->getHeight();
-        tempParticle.setPosition(glm::vec3(tempX, position.y, tempZ));
+        tempX = -1 * (particleSpawner->getWidth() / 2) + (((float)rand() / RAND_MAX) * particleSpawner->getWidth());
+        tempZ = -1 * (particleSpawner->getHeight() / 2) + (((float)rand() / RAND_MAX) * particleSpawner->getHeight());
+        tempParticle.setPosition(glm::vec3(centerPos.x + tempX, centerPos.y, centerPos.z + tempZ));
         particleSpawner->addParticle(tempParticle);
     }
 

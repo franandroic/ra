@@ -11,7 +11,7 @@ class PaSpObject : public Transformable {
 
 public:
 
-    PaSpObject(ParticleSpawner *inPs, Shader *inShader);
+    PaSpObject(glm::vec3 pos, ParticleSpawner *inPs, Shader *inShader);
 
 private:
 

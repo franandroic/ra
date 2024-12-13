@@ -25,7 +25,7 @@ Object::Object(Mesh *inMesh, Shader *inShader, Material *inMaterial, Shader *inS
 }
 
 void Object::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix, GLuint shadowTexID, glm::mat4 viewLightMatrix, glm::mat4 perspectiveLightMatrix) {
-
+    
     glUseProgram(shader->ID);
 
         glUniformMatrix4fv(uniformLocationModel, 1, GL_FALSE, glm::value_ptr(modelMatrix));

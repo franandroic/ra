@@ -40,4 +40,8 @@ public:
 
     int getHeight();
 
+    glm::vec3 getParticlePositionAt(int pos);
+
+    glm::vec3 getVertexAt(int pos);
+
 };
