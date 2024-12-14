@@ -2,12 +2,10 @@
 
 Particle::Particle() : Transformable(false) {
 
-    creationTime = 0;
-    lifeTime = 0;
+    creationTime = std::chrono::steady_clock::now();
 }
 
-Particle::Particle(float cTime, float lTime) : Transformable(false) {
+Particle::Particle(std::chrono::time_point<std::chrono::steady_clock> cTime) : Transformable(false) {
 
     creationTime = cTime;
-    lifeTime = lTime;
 }

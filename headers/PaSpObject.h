@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <chrono>
 #include "Transformable.h"
 #include "ParticleSpawner.h"
 #include "Shader.h"
@@ -23,11 +24,18 @@ private:
     GLint uniformLocationView;
     GLint uniformLocationPerspective;
 
+    GLint baseColor;
+
+    std::chrono::time_point<std::chrono::steady_clock> timeOfLastBatch;
+    std::chrono::time_point<std::chrono::steady_clock> timeOfLastCleanup;
+
+    std::chrono::duration<double> seconds_passed;
+
 public:
 
     void render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix);
 
     Shader *getShader();
     
-    void loadParticles(int count, glm::vec3 centerPos);
+    void loadParticles();
 };

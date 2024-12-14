@@ -33,6 +33,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <chrono>
 
 //dimenzije prozora
 const int mWidth = 1280;
@@ -283,11 +284,15 @@ int main(int argc, char *argv[]) {
 	renderer.registerObject(&object);
 
 	//stvaramo generator cestica
-	ParticleSpawner particleSpawner(1, 1, 0);
+	ParticleSpawner particleSpawner(1, 1, 200, 20, 5.0, glm::vec3(1.0, 0.0, 0.0));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
 	paspObject.globalMove(glm::vec3(0.0, -2.0, 0.0));
-	paspObject.loadParticles(20, paspObject.getPosition());
+	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
+	
+	for (int i = 0; i < particleSpawner.countVertices(); i++) {
+		std::cout << particleSpawner.getVertexAt(i).x << " " << particleSpawner.getVertexAt(i).y << " " << particleSpawner.getVertexAt(i).z << std::endl;
+	}
 
 	//stvaramo crtaca putanje
 	/*

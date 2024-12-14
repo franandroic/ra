@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <chrono>
 #include "Transformable.h"
 
 class Particle : public Transformable {
@@ -10,15 +11,9 @@ public:
 
     Particle();
 
-    Particle(float cTime, float lTime);
+    Particle(std::chrono::time_point<std::chrono::steady_clock> cTime);
 
-private:
-
-    float creationTime;
-
-    float lifeTime;
-
-    glm::vec3 color;
+    std::chrono::time_point<std::chrono::steady_clock> creationTime;
 
     glm::vec3 movementDirection;
 
