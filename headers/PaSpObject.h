@@ -24,8 +24,11 @@ private:
     GLint uniformLocationView;
     GLint uniformLocationPerspective;
 
-    GLint baseColor;
+    GLint uniformLocationBaseColor;
 
+    GLint uniformLocationTimePassed;
+
+    std::chrono::time_point<std::chrono::steady_clock> startTime;
     std::chrono::time_point<std::chrono::steady_clock> timeOfLastBatch;
     std::chrono::time_point<std::chrono::steady_clock> timeOfLastCleanup;
 

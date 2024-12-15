@@ -13,7 +13,7 @@ class ParticleSpawner : public Renderable {
 
 public:
 
-    ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, glm::vec3 inBaseColor);
+    ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, glm::vec3 inBaseColor);
 
 private:
 
@@ -27,6 +27,8 @@ private:
 
     double batchDuration;
 
+    float moveSpeed;
+
     glm::vec3 baseColor;
 
     std::vector<Particle> particles;
@@ -39,13 +41,15 @@ private:
 
 public:
 
-    GLuint VBO;
+    GLuint VBO[2];
 
     void draw() override;
 
     void addParticle(Particle newParticle);
 
     void particleCleanup();
+
+    void moveParticles();
 
     int countVertices();
 
@@ -55,12 +59,14 @@ public:
 
     int getMaxNumOfParticles();
 
-    glm::vec3 getParticlePositionAt(int pos);
+    Particle getParticleAt(int pos);
 
     glm::vec3 getVertexAt(int pos);
 
     int getBatchSize();
 
     double getBatchDuration();
+
+    glm::vec3 getBaseColor();
 
 };

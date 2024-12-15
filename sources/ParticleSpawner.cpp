@@ -1,12 +1,13 @@
 #include "../headers/ParticleSpawner.h"
 
-ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, glm::vec3 inBaseColor) {
+ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, glm::vec3 inBaseColor) {
 
     width = inWidth;
     height = inHeight;
     maxNumOfParticles = inMaxNum;
     batchSize = inBatchSize;
     batchDuration = inBatchDuration;
+    moveSpeed = inMoveSpeed;
     baseColor = inBaseColor;
 }
 
@@ -14,7 +15,7 @@ void ParticleSpawner::draw() {
 
     glBindVertexArray(VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &(vertices[0]), GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
         glEnableVertexAttribArray(0);
@@ -51,6 +52,16 @@ void ParticleSpawner::particleCleanup() {
     draw();
 }
 
+void ParticleSpawner::moveParticles() {
+
+    for (int i = 0; i < particles.size(); i++) {
+        particles[i].globalMove(glm::vec3(0.0, 1.0, 0.0) * moveSpeed);
+        vertices[i] = particles[i].getPosition();
+    }
+
+    draw();
+}
+
 int ParticleSpawner::countVertices() {
 
     return vertices.size();
@@ -71,9 +82,9 @@ int ParticleSpawner::getMaxNumOfParticles() {
     return maxNumOfParticles;
 }
 
-glm::vec3 ParticleSpawner::getParticlePositionAt(int pos) {
+Particle ParticleSpawner::getParticleAt(int pos) {
 
-    return particles[pos].getPosition();
+    return particles[pos];
 }
 
 glm::vec3 ParticleSpawner::getVertexAt(int pos) {
@@ -89,4 +100,9 @@ int ParticleSpawner::getBatchSize() {
 double ParticleSpawner::getBatchDuration() {
 
     return batchDuration;
+}
+
+glm::vec3 ParticleSpawner::getBaseColor() {
+
+    return baseColor;
 }

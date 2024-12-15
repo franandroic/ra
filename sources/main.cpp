@@ -284,15 +284,17 @@ int main(int argc, char *argv[]) {
 	renderer.registerObject(&object);
 
 	//stvaramo generator cestica
-	ParticleSpawner particleSpawner(1, 1, 200, 20, 5.0, glm::vec3(1.0, 0.0, 0.0));
+	ParticleSpawner particleSpawner(1, 1, 400, 50, 0.25, 0.002, glm::vec3(1.0, 0.0, 0.0));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
 	paspObject.globalMove(glm::vec3(0.0, -2.0, 0.0));
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
 	
+	/*
 	for (int i = 0; i < particleSpawner.countVertices(); i++) {
 		std::cout << particleSpawner.getVertexAt(i).x << " " << particleSpawner.getVertexAt(i).y << " " << particleSpawner.getVertexAt(i).z << std::endl;
 	}
+	*/
 
 	//stvaramo crtaca putanje
 	/*
@@ -350,6 +352,8 @@ int main(int argc, char *argv[]) {
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
+
+		glGetError();
 	}
 
 	//brisanje resursa pri zavrsetku izvodenja programa

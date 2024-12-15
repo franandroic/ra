@@ -8,9 +8,11 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 perspectiveMatrix;
 
+uniform vec3 baseColor;
+
 void main()
 {
-    color = vec3(1.0, 1.0, 1.0);
+    color = baseColor;
     gl_Position = perspectiveMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
     gl_PointSize = 10.0;
 }
