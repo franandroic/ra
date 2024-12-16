@@ -36,6 +36,13 @@ Mesh::Mesh(aiMesh *mesh) {
 
 };
 
+Mesh::~Mesh() {
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(3, VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
 void Mesh::applyTransform(glm::mat4 mat) {
 
     glm::vec4 tempVector;

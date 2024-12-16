@@ -9,6 +9,12 @@ Curve::Curve(std::vector<glm::vec3> inVertices) {
     glGenBuffers(1, &(VBO));
 }
 
+Curve::~Curve() {
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+}
+
 void Curve::addVertex(glm::vec3 newVertex) {
 
     vertices.push_back(newVertex);

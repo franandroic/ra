@@ -14,6 +14,8 @@ public:
 
     Curve(std::vector<glm::vec3> inVertices);
 
+    ~Curve();
+
 private:
 
     std::vector<glm::vec3> controlVertices;

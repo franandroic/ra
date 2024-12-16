@@ -16,6 +16,8 @@ public:
 
     Mesh() = default;
 
+    ~Mesh();
+
     Mesh(aiMesh *aimesh);
 
 private:

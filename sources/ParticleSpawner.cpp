@@ -1,6 +1,6 @@
 #include "../headers/ParticleSpawner.h"
 
-ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, glm::vec3 inBaseColor) {
+ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor) {
 
     width = inWidth;
     height = inHeight;
@@ -9,6 +9,16 @@ ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int in
     batchDuration = inBatchDuration;
     moveSpeed = inMoveSpeed;
     baseColor = inBaseColor;
+    moveID = inMoveID;
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(2, VBO);
+}
+
+ParticleSpawner::~ParticleSpawner() {
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(2, VBO);
 }
 
 void ParticleSpawner::draw() {
@@ -20,6 +30,11 @@ void ParticleSpawner::draw() {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
         glEnableVertexAttribArray(0);
 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+        glBufferData(GL_ARRAY_BUFFER, lifeTimes.size() * sizeof(float), &(lifeTimes[0]), GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void *) 0);
+        glEnableVertexAttribArray(1);
+
     glBindVertexArray(0);
 }
 
@@ -28,6 +43,7 @@ void ParticleSpawner::addParticle(Particle newParticle) {
     particles.push_back(newParticle);
     vertices.push_back(newParticle.getPosition());
     creationTimes.push_back(newParticle.creationTime);
+    lifeTimes.push_back(0.0);
 }
 
 void ParticleSpawner::particleCleanup() {
@@ -35,6 +51,7 @@ void ParticleSpawner::particleCleanup() {
     std::vector<Particle> tempParticles;
     std::vector<glm::vec3> tempVertices;
     std::vector<std::chrono::time_point<std::chrono::steady_clock>> tempCreationTimes;
+    std::vector<float> tempLifeTimes;
 
     for (int i = 0; i < particles.size(); i++) {
         seconds_passed = std::chrono::steady_clock::now() - creationTimes[i];
@@ -42,12 +59,14 @@ void ParticleSpawner::particleCleanup() {
             tempParticles.push_back(particles[i]);
             tempVertices.push_back(particles[i].getPosition());
             tempCreationTimes.push_back(particles[i].creationTime);
+            tempLifeTimes.push_back(seconds_passed.count());
         }
     }
 
     particles = tempParticles;
     vertices = tempVertices;
     creationTimes = tempCreationTimes;
+    lifeTimes = tempLifeTimes;
 
     draw();
 }
@@ -55,8 +74,16 @@ void ParticleSpawner::particleCleanup() {
 void ParticleSpawner::moveParticles() {
 
     for (int i = 0; i < particles.size(); i++) {
-        particles[i].globalMove(glm::vec3(0.0, 1.0, 0.0) * moveSpeed);
+
+        if (moveID == 0) moveDirection = glm::vec3(0.0, 1.0, 0.0);
+        else if (moveID == 1) moveDirection = glm::normalize(glm::vec3(0.0, 1.0, 0.0) + (vertices[i] - spawnerLocation));
+        else if (moveID == 2) moveDirection = glm::normalize(vertices[i] - spawnerLocation);
+
+        particles[i].globalMove(moveDirection * moveSpeed);
         vertices[i] = particles[i].getPosition();
+
+        seconds_passed = std::chrono::steady_clock::now() - creationTimes[i];
+        lifeTimes[i] = seconds_passed.count();
     }
 
     draw();
@@ -105,4 +132,14 @@ double ParticleSpawner::getBatchDuration() {
 glm::vec3 ParticleSpawner::getBaseColor() {
 
     return baseColor;
+}
+
+void ParticleSpawner::setSpawnerLocation(glm::vec3 newLocation) {
+
+    spawnerLocation = newLocation;
+}
+
+void ParticleSpawner::setMoveDirection(glm::vec3 newDirection) {
+
+    moveDirection = newDirection;
 }

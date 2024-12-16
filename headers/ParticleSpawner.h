@@ -13,7 +13,9 @@ class ParticleSpawner : public Renderable {
 
 public:
 
-    ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, glm::vec3 inBaseColor);
+    ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor);
+
+    ~ParticleSpawner();
 
 private:
 
@@ -36,6 +38,14 @@ private:
     std::vector<glm::vec3> vertices;
 
     std::vector<std::chrono::time_point<std::chrono::steady_clock>> creationTimes;
+
+    std::vector<float> lifeTimes;
+
+    glm::vec3 spawnerLocation;
+
+    int moveID;
+
+    glm::vec3 moveDirection;
 
     std::chrono::duration<double> seconds_passed;
 
@@ -68,5 +78,9 @@ public:
     double getBatchDuration();
 
     glm::vec3 getBaseColor();
+
+    void setSpawnerLocation(glm::vec3 newLocation);
+
+    void setMoveDirection(glm::vec3 newDirection);
 
 };

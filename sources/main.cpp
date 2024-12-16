@@ -284,9 +284,10 @@ int main(int argc, char *argv[]) {
 	renderer.registerObject(&object);
 
 	//stvaramo generator cestica
-	ParticleSpawner particleSpawner(1, 1, 400, 50, 0.25, 0.002, glm::vec3(1.0, 0.0, 0.0));
+	ParticleSpawner particleSpawner(1, 1, 1000, 100, 5, 0.0002, 2, glm::vec3(1.0, 0.0, 0.0));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
-	paspObject.globalMove(glm::vec3(0.0, -2.0, 0.0));
+	paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
+	paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
 	
@@ -297,7 +298,7 @@ int main(int argc, char *argv[]) {
 	*/
 
 	//stvaramo crtaca putanje
-	/*
+	
 	Pathmaker pathmaker(sjencar[2], &camera);
 	
 	pathmaker.setControlPoint(glm::vec3(-1.0, 0.0, -1.0));
@@ -312,10 +313,10 @@ int main(int argc, char *argv[]) {
 	pathmaker.remakeCurves();
 
 	//stvaramo animatora
-	Animator animator(&object, pathmaker.getAnimationCurve(), pathmaker.getAnimationTangents(), pathmaker.getAnimationSecDer());
+	Animator animator(&paspObject, pathmaker.getAnimationCurve(), pathmaker.getAnimationTangents(), pathmaker.getAnimationSecDer());
 
 	inputManager.addAnimator(&animator);
-	*/
+	
 
 	//glavna petlja
 	while(glfwWindowShouldClose(window) == false) {
@@ -345,7 +346,7 @@ int main(int argc, char *argv[]) {
 		renderer.renderPaspObjects();
 
 		//iscrtavanje krivulja
-		//pathmaker.renderCurves(3, 4);
+		pathmaker.renderCurves(3, 4);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

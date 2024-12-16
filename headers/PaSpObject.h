@@ -41,4 +41,6 @@ public:
     Shader *getShader();
     
     void loadParticles();
+
+    void moveLocation(glm::vec3 newLocation);
 };
