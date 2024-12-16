@@ -42,7 +42,7 @@ void PaSpObject::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 p
     glUseProgram(0);
 
     seconds_passed = std::chrono::steady_clock::now() - timeOfLastBatch;
-    if (seconds_passed.count() >= (particleSpawner->getBatchDuration() / 2)) {
+    if (seconds_passed.count() >= (particleSpawner->getBatchSpawnFrequency())) {
         loadParticles();
         timeOfLastBatch = std::chrono::steady_clock::now();
     }

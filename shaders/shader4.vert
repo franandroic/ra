@@ -17,5 +17,5 @@ void main()
     color = baseColor;
     lifeTime = aLifeTime;
     gl_Position = perspectiveMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
-    gl_PointSize = 10.0;
+    gl_PointSize = 5.0;
 }

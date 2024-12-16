@@ -13,19 +13,21 @@ class ParticleSpawner : public Renderable {
 
 public:
 
-    ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor);
+    ParticleSpawner(float inWidth, float inHeight, int inMaxNum, int inBatchSize, double inBatchSpawnFrequency, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor);
 
     ~ParticleSpawner();
 
 private:
 
-    int width;
+    float width;
 
-    int height;
+    float height;
 
     int maxNumOfParticles;
 
     int batchSize;
+
+    double batchSpawnFrequency;
 
     double batchDuration;
 
@@ -63,9 +65,9 @@ public:
 
     int countVertices();
 
-    int getWidth();
+    float getWidth();
 
-    int getHeight();
+    float getHeight();
 
     int getMaxNumOfParticles();
 
@@ -74,6 +76,8 @@ public:
     glm::vec3 getVertexAt(int pos);
 
     int getBatchSize();
+
+    double getBatchSpawnFrequency();
 
     double getBatchDuration();
 

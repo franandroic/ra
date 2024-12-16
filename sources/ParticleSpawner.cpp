@@ -1,11 +1,12 @@
 #include "../headers/ParticleSpawner.h"
 
-ParticleSpawner::ParticleSpawner(int inWidth, int inHeight, int inMaxNum, int inBatchSize, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor) {
+ParticleSpawner::ParticleSpawner(float inWidth, float inHeight, int inMaxNum, int inBatchSize, double inBatchSpawnFrequency, double inBatchDuration, float inMoveSpeed, int inMoveID, glm::vec3 inBaseColor) {
 
     width = inWidth;
     height = inHeight;
     maxNumOfParticles = inMaxNum;
     batchSize = inBatchSize;
+    batchSpawnFrequency = inBatchSpawnFrequency;
     batchDuration = inBatchDuration;
     moveSpeed = inMoveSpeed;
     baseColor = inBaseColor;
@@ -94,12 +95,12 @@ int ParticleSpawner::countVertices() {
     return vertices.size();
 }
 
-int ParticleSpawner::getWidth() {
+float ParticleSpawner::getWidth() {
 
     return width;
 }
 
-int ParticleSpawner::getHeight() {
+float ParticleSpawner::getHeight() {
 
     return height;
 }
@@ -122,6 +123,11 @@ glm::vec3 ParticleSpawner::getVertexAt(int pos) {
 int ParticleSpawner::getBatchSize() {
 
     return batchSize;
+}
+
+double ParticleSpawner::getBatchSpawnFrequency() {
+
+    return batchSpawnFrequency;
 }
 
 double ParticleSpawner::getBatchDuration() {

@@ -284,10 +284,11 @@ int main(int argc, char *argv[]) {
 	renderer.registerObject(&object);
 
 	//stvaramo generator cestica
-	ParticleSpawner particleSpawner(1, 1, 1000, 100, 5, 0.0002, 2, glm::vec3(1.0, 0.0, 0.0));
+	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
+	ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
 	paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
-	paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
+	//paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
 	
