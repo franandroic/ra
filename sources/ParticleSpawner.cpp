@@ -72,7 +72,7 @@ void ParticleSpawner::particleCleanup() {
     draw();
 }
 
-void ParticleSpawner::moveParticles() {
+void ParticleSpawner::moveParticles(double deltaTime) {
 
     for (int i = 0; i < particles.size(); i++) {
 
@@ -80,7 +80,8 @@ void ParticleSpawner::moveParticles() {
         else if (moveID == 1) moveDirection = glm::normalize(glm::vec3(0.0, 1.0, 0.0) + (vertices[i] - spawnerLocation));
         else if (moveID == 2) moveDirection = glm::normalize(vertices[i] - spawnerLocation);
 
-        particles[i].globalMove(moveDirection * moveSpeed);
+        particles[i].globalMove(moveDirection * moveSpeed * (float)deltaTime);
+        //std::cout << (float)deltaTime << std::endl;
         vertices[i] = particles[i].getPosition();
 
         seconds_passed = std::chrono::steady_clock::now() - creationTimes[i];

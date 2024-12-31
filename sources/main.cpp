@@ -17,6 +17,8 @@
 #include "../headers/Animator.h"
 #include "../headers/ParticleSpawner.h"
 #include "../headers/PaSpObject.h"
+#include "../headers/SceneGraph.h"
+#include "../headers/SGNode.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -38,6 +40,9 @@
 //dimenzije prozora
 const int mWidth = 1280;
 const int mHeight = 800;
+
+//delta-time
+double deltaTime = 0.0;
 
 //fokus prozora
 bool inFocus = true;
@@ -279,18 +284,56 @@ int main(int argc, char *argv[]) {
 
 	//od Shadera, Mesha i Materijala stvaramo objekte, transformiramo ih i dodajemo u crtaca
 	Object object(&mesh, sjencar[1], nullptr, sjencar[3]);
-	object.setScale(glm::vec3(0.5, 0.5, 0.5));
-	object.globalMove(glm::vec3(0.0, -2.0, 0.0));
+	//object.setScale(glm::vec3(0.5, 0.5, 0.5));
+	//object.globalMove(glm::vec3(2.0, 0.0, 0.0));
 	renderer.registerObject(&object);
+	
+	Object object_two(&mesh, sjencar[1], nullptr, sjencar[3]);
+	//object_two.setScale(glm::vec3(0.5, 0.5, 0.5));
+	//object_two.globalMove(glm::vec3(-2.0, 0.0, 0.0));
+	renderer.registerObject(&object_two);
 
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
 	ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
-	paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
+	//paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
 	//paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
+
+	ParticleSpawner particleSpawner_two(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(0.0, 1.0, 0.0));
+	PaSpObject paspObject_two(glm::vec3(0.0, 0.0, 0.0), &particleSpawner_two, sjencar[4]);
+	//paspObject_two.moveLocation(glm::vec3(2.0, -2.0, 0.0));
+	paspObject_two.loadParticles();
+	renderer.registerPaspObject(&paspObject_two);
+
+	ParticleSpawner particleSpawner_three(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(0.0, 0.0, 1.0));
+	PaSpObject paspObject_three(glm::vec3(0.0, 0.0, 0.0), &particleSpawner_three, sjencar[4]);
+	//paspObject_three.moveLocation(glm::vec3(4.0, -2.0, 0.0));
+	paspObject_three.loadParticles();
+	renderer.registerPaspObject(&paspObject_three);
+
+	//gradimo graf scene
+	SceneGraph sceneGraph;
+
+	SGNode robothead1(&object, "robot_head_1", false);
+	SGNode robothead2(&object_two, "robot_head_2", false);
+	SGNode particle1(&paspObject, "particles_1", true);
+	SGNode particle2(&paspObject_two, "particles_2", true);
+	SGNode particle3(&paspObject_three, "particles_3", true);
+
+	sceneGraph.root.children.push_back(&robothead1);
+	sceneGraph.root.children[0]->children.push_back(&robothead2);
+	sceneGraph.root.children[0]->children.push_back(&particle1);
+	sceneGraph.root.children[0]->children[0]->children.push_back(&particle2);
+	sceneGraph.root.children[0]->children[0]->children.push_back(&particle3);
+
+	sceneGraph.moveSubtree("robot_head_1", glm::vec3(-5.0, 0.0, 0.0));
+	sceneGraph.moveSubtree("robot_head_2", glm::vec3(2.0, 2.0, 0.0));
+	//sceneGraph.moveSubtree("particles_1", glm::vec3(2.5, 0.0, 0.0));
+
+	sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 45.0f);
 	
 	/*
 	for (int i = 0; i < particleSpawner.countVertices(); i++) {
@@ -300,6 +343,7 @@ int main(int argc, char *argv[]) {
 
 	//stvaramo crtaca putanje
 	
+	/*
 	Pathmaker pathmaker(sjencar[2], &camera);
 	
 	pathmaker.setControlPoint(glm::vec3(-1.0, 0.0, -1.0));
@@ -317,16 +361,19 @@ int main(int argc, char *argv[]) {
 	Animator animator(&paspObject, pathmaker.getAnimationCurve(), pathmaker.getAnimationTangents(), pathmaker.getAnimationSecDer());
 
 	inputManager.addAnimator(&animator);
-	
+	*/
 
 	//glavna petlja
 	while(glfwWindowShouldClose(window) == false) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		FPSManager.maintainFPS();
+		deltaTime = FPSManager.maintainFPS();
 
 		inputManager.handleInput(renderer.camera, inFocus);
+
+		//sceneGraph.moveSubtree("robot_head_1", glm::vec3(deltaTime, 0.0, 0.0));
+		sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 0.05f);
 
 		//iscrtavanje objekta
 		glUseProgram(sjencar[0]->ID);
@@ -344,10 +391,10 @@ int main(int argc, char *argv[]) {
 
 		renderer.renderObjects();
 
-		renderer.renderPaspObjects();
+		renderer.renderPaspObjects(deltaTime * 1000.0);
 
 		//iscrtavanje krivulja
-		pathmaker.renderCurves(3, 4);
+		//pathmaker.renderCurves(3, 4);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -355,7 +402,6 @@ int main(int argc, char *argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
-		glGetError();
 	}
 
 	//brisanje resursa pri zavrsetku izvodenja programa

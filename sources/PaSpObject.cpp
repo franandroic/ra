@@ -21,9 +21,9 @@ PaSpObject::PaSpObject(glm::vec3 pos, ParticleSpawner *inPs, Shader *inShader) :
     particleSpawner->setSpawnerLocation(getPosition());
 }
 
-void PaSpObject::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix) {
+void PaSpObject::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix, double deltaTime) {
 
-    particleSpawner->moveParticles();
+    particleSpawner->moveParticles(deltaTime);
     
     glUseProgram(shader->ID);
 

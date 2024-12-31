@@ -29,10 +29,10 @@ void Renderer::renderObjects() {
     }
 }
 
-void Renderer::renderPaspObjects() {
+void Renderer::renderPaspObjects(double deltaTime) {
 
     for (int i = 0; i < paspObjects.size(); i++) {
-        paspObjects[i]->render(paspObjects[i]->getModelMatrix(), camera->getViewMatrix(), camera->getPerspectiveMatrix());
+        paspObjects[i]->render(paspObjects[i]->getModelMatrix(), camera->getViewMatrix(), camera->getPerspectiveMatrix(), deltaTime);
     }
 }
 

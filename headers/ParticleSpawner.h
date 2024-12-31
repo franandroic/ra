@@ -61,7 +61,7 @@ public:
 
     void particleCleanup();
 
-    void moveParticles();
+    void moveParticles(double deltaTime);
 
     int countVertices();
 

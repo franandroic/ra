@@ -45,7 +45,7 @@ public:
 
     void renderObjects();
 
-    void renderPaspObjects();
+    void renderPaspObjects(double deltaTime);
 
     void renderShadowMap();
 
