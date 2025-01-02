@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 	//postavljanje openGL konteksta
     GLFWwindow* window = setupContext();
 
-	InputManager inputManager(window, mWidth, mHeight, InputProfile::FlyingCamera);
+	InputManager inputManager(window, mWidth, mHeight);
 
 	//postavljanje callback funkcija
 	glfwSetWindowFocusCallback(window, focus_callback);
@@ -293,6 +293,9 @@ int main(int argc, char *argv[]) {
 	//object_two.globalMove(glm::vec3(-2.0, 0.0, 0.0));
 	renderer.registerObject(&object_two);
 
+	Object object_three(&mesh, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&object_three);
+
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
 	ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0));
@@ -302,38 +305,26 @@ int main(int argc, char *argv[]) {
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
 
-	ParticleSpawner particleSpawner_two(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(0.0, 1.0, 0.0));
-	PaSpObject paspObject_two(glm::vec3(0.0, 0.0, 0.0), &particleSpawner_two, sjencar[4]);
-	//paspObject_two.moveLocation(glm::vec3(2.0, -2.0, 0.0));
-	paspObject_two.loadParticles();
-	renderer.registerPaspObject(&paspObject_two);
-
-	ParticleSpawner particleSpawner_three(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(0.0, 0.0, 1.0));
-	PaSpObject paspObject_three(glm::vec3(0.0, 0.0, 0.0), &particleSpawner_three, sjencar[4]);
-	//paspObject_three.moveLocation(glm::vec3(4.0, -2.0, 0.0));
-	paspObject_three.loadParticles();
-	renderer.registerPaspObject(&paspObject_three);
-
 	//gradimo graf scene
 	SceneGraph sceneGraph;
 
 	SGNode robothead1(&object, "robot_head_1", false);
 	SGNode robothead2(&object_two, "robot_head_2", false);
 	SGNode particle1(&paspObject, "particles_1", true);
-	SGNode particle2(&paspObject_two, "particles_2", true);
-	SGNode particle3(&paspObject_three, "particles_3", true);
+	SGNode robothead3(&object_three, "robot_head_3", false);
 
 	sceneGraph.root.children.push_back(&robothead1);
 	sceneGraph.root.children[0]->children.push_back(&robothead2);
-	sceneGraph.root.children[0]->children.push_back(&particle1);
-	sceneGraph.root.children[0]->children[0]->children.push_back(&particle2);
-	sceneGraph.root.children[0]->children[0]->children.push_back(&particle3);
+	sceneGraph.root.children[0]->children.push_back(&robothead3);
+	sceneGraph.root.children[0]->children[1]->children.push_back(&particle1);
 
 	sceneGraph.moveSubtree("robot_head_1", glm::vec3(-5.0, 0.0, 0.0));
 	sceneGraph.moveSubtree("robot_head_2", glm::vec3(2.0, 2.0, 0.0));
+	sceneGraph.moveSubtree("robot_head_3", glm::vec3(-2.0, 2.0, 0.0));
 	//sceneGraph.moveSubtree("particles_1", glm::vec3(2.5, 0.0, 0.0));
 
 	sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 45.0f);
+	sceneGraph.scaleSubtree("robot_head_3", glm::vec3(0.5, 0.5, 0.5));
 	
 	/*
 	for (int i = 0; i < particleSpawner.countVertices(); i++) {
@@ -370,10 +361,10 @@ int main(int argc, char *argv[]) {
 
 		deltaTime = FPSManager.maintainFPS();
 
-		inputManager.handleInput(renderer.camera, inFocus);
+		inputManager.handleInput(&object, inFocus);
 
 		//sceneGraph.moveSubtree("robot_head_1", glm::vec3(deltaTime, 0.0, 0.0));
-		sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 0.05f);
+		sceneGraph.rotateSubtree("robot_head_3", glm::vec3(0.0, 1.0, 0.0), 0.05f);
 
 		//iscrtavanje objekta
 		glUseProgram(sjencar[0]->ID);

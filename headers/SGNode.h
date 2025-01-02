@@ -25,6 +25,14 @@ public:
 
     void moveNode(std::string nodeName, glm::vec3 delta, bool foundNode);
 
-    void rotateNode(std::string nodeName, glm::vec3 axis, float degrees, bool foundNode);
+    void rotateNode(std::string nodeName, glm::vec3 axis, float degrees, bool foundNode, glm::vec3 parentPosition);
+
+    void scaleNode(std::string nodeName, glm::vec3 factor, bool foundNode, glm::vec3 parentPosition);
+
+private:
+
+    glm::vec3 tempVec;
+
+    glm::mat4 tempMat;
 
 };

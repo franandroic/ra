@@ -1,5 +1,5 @@
 enum class InputProfile {
 
     FlyingCamera,
-    Observer
+    VehicleControl
 };

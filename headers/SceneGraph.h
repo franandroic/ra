@@ -16,4 +16,6 @@ public:
 
     void rotateSubtree(std::string nodeName, glm::vec3 axis, float degrees);
 
+    void scaleSubtree(std::string nodeName, glm::vec3 factor);
+
 };

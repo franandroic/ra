@@ -12,5 +12,10 @@ void SceneGraph::moveSubtree(std::string nodeName, glm::vec3 delta) {
 
 void SceneGraph::rotateSubtree(std::string nodeName, glm::vec3 axis, float degrees) {
 
-    root.rotateNode(nodeName, axis, degrees, false);
+    root.rotateNode(nodeName, axis, degrees, false, glm::vec3(0.0f, 0.0f, 0.0f));
+}
+
+void SceneGraph::scaleSubtree(std::string nodeName, glm::vec3 factor) {
+
+    root.scaleNode(nodeName, factor, false, glm::vec3(0.0f, 0.0f, 0.0f));
 }

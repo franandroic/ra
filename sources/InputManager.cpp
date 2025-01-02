@@ -1,10 +1,10 @@
 #include "../headers/InputManager.h"
 
-InputManager::InputManager(GLFWwindow *inWindow, int width, int height, InputProfile profile) {
+InputManager::InputManager(GLFWwindow *inWindow, int width, int height) {
 
     window = inWindow;
 
-    currentInputProfile = profile;
+    currentInputProfile = InputProfile::FlyingCamera;
 
     bForward = false;
 
@@ -61,6 +61,10 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
             else bSetToAnimate = true;
         }
         else if (action == GLFW_RELEASE) bAnimating = true;
+    } else if (key == GLFW_KEY_1) {
+        if (action == GLFW_RELEASE) currentInputProfile = InputProfile::FlyingCamera;
+    } else if (key == GLFW_KEY_2) {
+        if (action == GLFW_RELEASE) currentInputProfile = InputProfile::VehicleControl;
     }
 }
 

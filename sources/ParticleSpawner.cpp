@@ -146,6 +146,11 @@ void ParticleSpawner::setSpawnerLocation(glm::vec3 newLocation) {
     spawnerLocation = newLocation;
 }
 
+glm::vec3 ParticleSpawner::getSpawnerLocation() {
+
+    return spawnerLocation;
+}
+
 void ParticleSpawner::setMoveDirection(glm::vec3 newDirection) {
 
     moveDirection = newDirection;

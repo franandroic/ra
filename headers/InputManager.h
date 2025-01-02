@@ -5,6 +5,7 @@
 #include "InputProfile.h"
 #include "Transformable.h"
 #include "Animator.h"
+#include "Camera.h"
 
 class InputManager {
 
@@ -44,7 +45,7 @@ public:
 
     Transformable *selectedTransformable;
 
-    InputManager(GLFWwindow *inWindow, int width, int height, InputProfile profile);
+    InputManager(GLFWwindow *inWindow, int width, int height);
 
     void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 

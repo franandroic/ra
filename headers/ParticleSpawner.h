@@ -85,6 +85,8 @@ public:
 
     void setSpawnerLocation(glm::vec3 newLocation);
 
+    glm::vec3 getSpawnerLocation();
+
     void setMoveDirection(glm::vec3 newDirection);
 
 };
