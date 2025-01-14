@@ -17,7 +17,7 @@ void main()
     if (lifeTime < 1) {
         FragColor = vec4(mix(vec3(0.7, 0.8, 0.5), color, t_val_loc), 1.0);
     } else {
-        FragColor = vec4(mix(vec3(0.2, 0.2, 0.2), vec3(0.0, 0.0, 0.0), t_val_glob), 1.0);
+        FragColor = vec4(mix(vec3(0.2, 0.2, 0.2), vec3(1.0, 0.1, 0.0), t_val_glob), 1.0);
     }
     
 }

@@ -1,6 +1,6 @@
 #include "../headers/InputManager.h"
 
-InputManager::InputManager(GLFWwindow *inWindow, int width, int height) {
+InputManager::InputManager(GLFWwindow *inWindow, int width, int height, SceneGraph *inSceneGraph, SGNode *inCameraNode, SGNode *inCameraMountNode) {
 
     window = inWindow;
 
@@ -29,6 +29,24 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height) {
     bSetToAnimate = false;
 
     bAnimating = false;
+
+    sceneGraph = inSceneGraph;
+
+    x_mouse = 0;
+
+    y_mouse = 0;
+
+    turnDeg = 0.0f;
+    turnConstraint = 45.0f;
+    pitchDeg = 0.0f;
+    pitchConstraint = 45.0f;
+
+    cameraNode = inCameraNode;
+
+    cameraMountNode = inCameraMountNode;
+
+    cameraPitchDeg = 0.0f;
+    cameraPitchConstraint = 45.0f;
 
     glfwSetWindowUserPointer(inWindow, this);
     glfwSetKeyCallback(inWindow, keyCallbackStatic);
@@ -62,9 +80,9 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
         }
         else if (action == GLFW_RELEASE) bAnimating = true;
     } else if (key == GLFW_KEY_1) {
-        if (action == GLFW_RELEASE) currentInputProfile = InputProfile::FlyingCamera;
+        if (action == GLFW_RELEASE) setInputProfile(InputProfile::FlyingCamera);
     } else if (key == GLFW_KEY_2) {
-        if (action == GLFW_RELEASE) currentInputProfile = InputProfile::VehicleControl;
+        if (action == GLFW_RELEASE) setInputProfile(InputProfile::VehicleControl);
     }
 }
 
@@ -77,7 +95,7 @@ void InputManager::keyCallbackStatic(GLFWwindow *window, int key, int scancode, 
 void InputManager::handleInput(Transformable *transformable, bool inFocus) {
 
     handleKeyboardInput(transformable);
-    handleMouseInput(transformable, inFocus);
+    handleMouseInput(transformable, inFocus, true);
 
     transformable->globalMove(movementVector);
     transformable->rotate(rotationMatrix);
@@ -95,36 +113,116 @@ void InputManager::handleInput(Transformable *transformable, bool inFocus) {
     }
 }
 
+void InputManager::handleInput(SGNode *node, bool inFocus) {
+
+    handleKeyboardInput(node->item);
+    handleMouseInput(node->item, inFocus, false);
+
+    sceneGraph->moveSubtree(node->name, movementVector);
+    
+    if (x_mouse < 0) {
+        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -1.0f);
+	} else if (x_mouse > 0) {
+        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), 1.0f);
+	}
+
+	if (y_mouse > 0 && cameraPitchDeg > -cameraPitchConstraint) {
+        sceneGraph->rotateSubtree(node->name, node->item->getRight(), -1.0f);
+		cameraPitchDeg--;
+	} else if (y_mouse < 0 && cameraPitchDeg < cameraPitchConstraint) {
+        sceneGraph->rotateSubtree(node->name, node->item->getRight(), 1.0f);
+		cameraPitchDeg++;
+	}
+
+    if (currentInputProfile == InputProfile::VehicleControl) {
+        if (bRight && turnDeg < turnConstraint) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), 0.1f);
+            cameraNode->doRotate = true;
+            turnDeg += 0.1f;
+        }
+        if (bLeft && turnDeg > -turnConstraint) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -0.1f);
+            cameraNode->doRotate = true;
+            turnDeg -= 0.1f;
+        }
+        if (bUp && pitchDeg > -pitchConstraint) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -0.1f);
+            cameraNode->doRotate = true;
+            pitchDeg -= 0.1f;
+        }
+        if (bDown && pitchDeg < pitchConstraint) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), 0.1f);
+            cameraNode->doRotate = true;
+            pitchDeg += 0.1f;
+        }
+    }
+
+    movementVector = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
 void InputManager::handleKeyboardInput(Transformable *transformable) {
 
     if (currentInputProfile == InputProfile::FlyingCamera) {
+
         if (bForward) movementVector += -0.002f * transformable->getFront();
         if (bBackward) movementVector += 0.002f * transformable->getFront();
         if (bRight) movementVector += 0.002f * transformable->getRight();
         if (bLeft) movementVector += -0.002f * transformable->getRight();
         if (bUp) movementVector += 0.002f * transformable->getUp();
         if (bDown) movementVector += -0.002f * transformable->getUp();
+
+    } else if (currentInputProfile == InputProfile::VehicleControl) {
+        if (bForward) movementVector += 0.002f * transformable->getFront();
+        if (bBackward) movementVector += -0.002f * transformable->getFront();
     }
 }
 
-void InputManager::handleMouseInput(Transformable *transformable, bool inFocus) {
+void InputManager::handleMouseInput(Transformable *transformable, bool inFocus, bool calcMat) {
 
     if (inFocus) {
-        if (currentInputProfile == InputProfile::FlyingCamera) {
-            double x_mouse = 0.0;
-            double y_mouse = 0.0;
-            glfwGetCursorPos(window, &x_mouse, &y_mouse);
-            x_mouse = ((2.0 * x_mouse) / windowWidth) - 1.0;
-            y_mouse = -1.0 * (((2.0 * y_mouse) / windowHeight) - 1.0);
 
-            rotationMatrix = transformable->rotateFPS(x_mouse, y_mouse, 180.0f);
+        x_mouse = 0.0;
+        y_mouse = 0.0;
+        glfwGetCursorPos(window, &x_mouse, &y_mouse);
+        x_mouse = ((2.0 * x_mouse) / windowWidth) - 1.0;
+        y_mouse = -1.0 * (((2.0 * y_mouse) / windowHeight) - 1.0);
 
-            glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
-        }
+        if (calcMat) rotationMatrix = transformable->rotateFPS(x_mouse, y_mouse, 85.0f);
+
+        glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
 	}
 }
 
 void InputManager::addAnimator(Animator *inAnimator) {
 
     animator = inAnimator;
+}
+
+void InputManager::setInputProfile(InputProfile newInputProfile) {
+
+    if (newInputProfile == currentInputProfile) return;
+
+    if (newInputProfile == InputProfile::VehicleControl) {
+
+        sceneGraph->root.children.pop_back();
+        cameraMountNode->children.push_back(cameraNode);
+
+        cameraNode->item->setPosition(cameraMountNode->item->getPosition());
+        cameraNode->item->setOrientation(-cameraMountNode->item->getFront(), cameraMountNode->item->getUp(), cameraMountNode->item->getRight());
+
+        sceneGraph->moveSubtree(cameraNode->name, 0.8f * cameraNode->item->getUp());
+        sceneGraph->moveSubtree(cameraNode->name, 1.0f * cameraNode->item->getFront());
+        sceneGraph->rotateSubtree(cameraNode->name, cameraNode->item->getRight(), 25.0f);
+
+    } else {
+
+        cameraMountNode->children.pop_back();
+        sceneGraph->root.children.push_back(cameraNode);
+    }
+
+    currentInputProfile = newInputProfile;
 }

@@ -142,8 +142,6 @@ int main(int argc, char *argv[]) {
 	//postavljanje openGL konteksta
     GLFWwindow* window = setupContext();
 
-	InputManager inputManager(window, mWidth, mHeight);
-
 	//postavljanje callback funkcija
 	glfwSetWindowFocusCallback(window, focus_callback);
 
@@ -184,12 +182,12 @@ int main(int argc, char *argv[]) {
 
 	//stvaramo i pozicioniramo kameru
 	Camera camera(0.1f, 5.0f, 30.0f, (float)mWidth/(float)mHeight);
-	camera.globalMove(glm::vec3(0.0, 0.5, 5.0));
-	camera.rotate(glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0)));
+	//camera.globalMove(glm::vec3(0.0, 0.5, 5.0));
+	//camera.rotate(glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0)));
 
 	//stvaramo izvor svjetla
-	Light light(glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
-	light.globalMove(glm::vec3(0.0, 5.0, 5.0));
+	Light light(glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
+	//light.globalMove(glm::vec3(0.0, 5.0, 5.0));
 
 	//stvaramo reflektorski izvor svjetla
 	ReflectorLight otherLight;
@@ -298,7 +296,8 @@ int main(int argc, char *argv[]) {
 
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
-	ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0));
+	//ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0)); vatra
+	ParticleSpawner particleSpawner(1.0, 1.0, 2000, 200, 0.1, 1.0, 0.001, 2, glm::vec3(1.0f, 1.0f, 0.0f));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
 	//paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
 	//paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
@@ -313,19 +312,43 @@ int main(int argc, char *argv[]) {
 	SGNode particle1(&paspObject, "particles_1", true);
 	SGNode robothead3(&object_three, "robot_head_3", false);
 
+	SGNode camera1(&camera, "camera_1", false);
+
+	//postavljamo input managera
+	InputManager inputManager(window, mWidth, mHeight, &sceneGraph, &camera1, &robothead1);
+
 	sceneGraph.root.children.push_back(&robothead1);
+	sceneGraph.root.children.push_back(&particle1);
 	sceneGraph.root.children[0]->children.push_back(&robothead2);
 	sceneGraph.root.children[0]->children.push_back(&robothead3);
-	sceneGraph.root.children[0]->children[1]->children.push_back(&particle1);
+	//sceneGraph.root.children[0]->children.push_back(&camera1);
 
-	sceneGraph.moveSubtree("robot_head_1", glm::vec3(-5.0, 0.0, 0.0));
+	sceneGraph.root.children.push_back(&camera1);
+
+	sceneGraph.moveSubtree("robot_head_1", glm::vec3(0.0, 0.0, -10.0));
 	sceneGraph.moveSubtree("robot_head_2", glm::vec3(2.0, 2.0, 0.0));
 	sceneGraph.moveSubtree("robot_head_3", glm::vec3(-2.0, 2.0, 0.0));
 	//sceneGraph.moveSubtree("particles_1", glm::vec3(2.5, 0.0, 0.0));
 
-	sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 45.0f);
+	//sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 45.0f);
 	sceneGraph.scaleSubtree("robot_head_3", glm::vec3(0.5, 0.5, 0.5));
+	sceneGraph.scaleSubtree("robot_head_1", glm::vec3(0.1, 0.1, 0.1));
+
+	camera1.item->setPosition(robothead1.item->getPosition());
+
+	/*
+	std::cout << robothead1.item->getFront().x << " " << robothead1.item->getFront().y << " " << robothead1.item->getFront().z << std::endl;
+	std::cout << robothead1.item->getUp().x << " " << robothead1.item->getUp().y << " " << robothead1.item->getUp().z << std::endl;
+	std::cout << robothead1.item->getRight().x << " " << robothead1.item->getRight().y << " " << robothead1.item->getRight().z << std::endl;
 	
+	std::cout << camera1.item->getFront().x << " " << camera1.item->getFront().y << " " << camera1.item->getFront().z << std::endl;
+	std::cout << camera1.item->getUp().x << " " << camera1.item->getUp().y << " " << camera1.item->getUp().z << std::endl;
+	std::cout << camera1.item->getRight().x << " " << camera1.item->getRight().y << " " << camera1.item->getRight().z << std::endl;
+	*/
+
+	sceneGraph.moveSubtree("camera_1", glm::vec3(0.0, 0.0, 5.0));
+	sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 180.0f);
+
 	/*
 	for (int i = 0; i < particleSpawner.countVertices(); i++) {
 		std::cout << particleSpawner.getVertexAt(i).x << " " << particleSpawner.getVertexAt(i).y << " " << particleSpawner.getVertexAt(i).z << std::endl;
@@ -361,10 +384,11 @@ int main(int argc, char *argv[]) {
 
 		deltaTime = FPSManager.maintainFPS();
 
-		inputManager.handleInput(&object, inFocus);
+		if (inputManager.currentInputProfile == InputProfile::FlyingCamera) inputManager.handleInput(&camera1, inFocus);
+		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&robothead1, inFocus);
 
 		//sceneGraph.moveSubtree("robot_head_1", glm::vec3(deltaTime, 0.0, 0.0));
-		sceneGraph.rotateSubtree("robot_head_3", glm::vec3(0.0, 1.0, 0.0), 0.05f);
+		//sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 0.05f);
 
 		//iscrtavanje objekta
 		glUseProgram(sjencar[0]->ID);

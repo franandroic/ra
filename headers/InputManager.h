@@ -5,7 +5,8 @@
 #include "InputProfile.h"
 #include "Transformable.h"
 #include "Animator.h"
-#include "Camera.h"
+#include "SceneGraph.h"
+#include "SGNode.h"
 
 class InputManager {
 
@@ -39,13 +40,31 @@ private:
 
     bool bAnimating;
 
+    SceneGraph *sceneGraph;
+
+    double x_mouse;
+
+    double y_mouse;
+
+    float turnDeg;
+    float turnConstraint;
+    float pitchDeg;
+    float pitchConstraint;
+
+    SGNode *cameraNode;
+
+    SGNode *cameraMountNode;
+
+    float cameraPitchDeg;
+    float cameraPitchConstraint;
+
 public:
 
     InputProfile currentInputProfile;
 
     Transformable *selectedTransformable;
 
-    InputManager(GLFWwindow *inWindow, int width, int height);
+    InputManager(GLFWwindow *inWindow, int width, int height, SceneGraph *inSceneGraph, SGNode *inCameraNode, SGNode *inCameraMountNode);
 
     void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
@@ -53,10 +72,14 @@ public:
 
     void handleInput(Transformable *transformable, bool inFocus);
 
+    void handleInput(SGNode *node, bool inFocus);
+
     void handleKeyboardInput(Transformable *transformable);
 
-    void handleMouseInput(Transformable *transformable, bool inFocus);
+    void handleMouseInput(Transformable *transformable, bool inFocus, bool calcMat);
 
     void addAnimator(Animator *inAnimator);
+
+    void setInputProfile(InputProfile newInputProfile);
 
 };

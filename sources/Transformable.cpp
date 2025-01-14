@@ -8,6 +8,8 @@ Transformable::Transformable(bool isCamera) {
     up = glm::vec3(0, 1, 0);
     right = glm::vec3(1, 0, 0);
     scale = glm::vec3(1, 1, 1);
+
+    pitchDeg = 0.0f;
 }
 
 glm::mat4 Transformable::getModelMatrix() {
@@ -65,9 +67,8 @@ void Transformable::setScale(glm::vec3 newScale) {
     scale = newScale;
 }
 
-glm::mat4 Transformable::rotateFPS(float xOffset, float yOffset, bool constrainPitch) {
+glm::mat4 Transformable::rotateFPS(float xOffset, float yOffset, float constrainPitch) {
 
-    float pitchDeg = 0.0f;
     glm::mat4 rotationMatrix(1);
 
     if (xOffset < 0) {

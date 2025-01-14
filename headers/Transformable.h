@@ -23,6 +23,8 @@ protected:
     glm::vec3 right;
 
     glm::vec3 scale;
+    
+    float pitchDeg;
 
 public:
 
@@ -38,7 +40,7 @@ public:
 
     void setScale(glm::vec3 newScale);
 
-    glm::mat4 rotateFPS(float xOffset, float yOffset, bool constrainPitch);
+    glm::mat4 rotateFPS(float xOffset, float yOffset, float constrainPitch);
 
     glm::vec3 getFront();
 

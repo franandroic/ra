@@ -7,6 +7,7 @@ SGNode::SGNode() {
     isPaSp = false;
     children.clear();
     nodeModelMatrix = glm::mat4(1);
+    doRotate = true;
 }
 
 SGNode::SGNode(Transformable *inItem, std::string inName, bool inIsPaSp) {
@@ -16,6 +17,7 @@ SGNode::SGNode(Transformable *inItem, std::string inName, bool inIsPaSp) {
     isPaSp = inIsPaSp;
     children.clear();
     nodeModelMatrix = glm::mat4(1);
+    doRotate = true;
 }
 
 void SGNode::moveNode(std::string nodeName, glm::vec3 delta, bool foundNode) {
@@ -37,6 +39,8 @@ void SGNode::moveNode(std::string nodeName, glm::vec3 delta, bool foundNode) {
 }
 
 void SGNode::rotateNode(std::string nodeName, glm::vec3 axis, float degrees, bool foundNode, glm::vec3 parentPosition) {
+
+    if (!doRotate) return;
 
     if (foundNode == true) {
         

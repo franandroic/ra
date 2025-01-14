@@ -19,6 +19,8 @@ public:
 
     bool isPaSp;
 
+    bool doRotate;
+
     std::vector<SGNode *> children;
 
     glm::mat4 nodeModelMatrix;
