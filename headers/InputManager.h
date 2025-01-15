@@ -46,8 +46,8 @@ private:
 
     double y_mouse;
 
-    float turnDeg;
-    float turnConstraint;
+    float rollDeg;
+    float rollConstraint;
     float pitchDeg;
     float pitchConstraint;
 

@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 	std::string resPath(dirPath);
 	resPath.append("\\resources");
 	std::string objPath(resPath);
-	objPath.append("\\glava\\glava.obj");
+	objPath.append("\\spaceship\\spaceship.obj");
 
 	const aiScene* scene = importer.ReadFile(objPath.c_str(),
 		aiProcess_CalcTangentSpace |
@@ -181,13 +181,10 @@ int main(int argc, char *argv[]) {
     }
 
 	//stvaramo i pozicioniramo kameru
-	Camera camera(0.1f, 5.0f, 30.0f, (float)mWidth/(float)mHeight);
-	//camera.globalMove(glm::vec3(0.0, 0.5, 5.0));
-	//camera.rotate(glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0)));
+	Camera camera(0.005f, 10.0f, 30.0f, (float)mWidth/(float)mHeight);
 
 	//stvaramo izvor svjetla
 	Light light(glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
-	//light.globalMove(glm::vec3(0.0, 5.0, 5.0));
 
 	//stvaramo reflektorski izvor svjetla
 	ReflectorLight otherLight;
@@ -199,8 +196,39 @@ int main(int argc, char *argv[]) {
 	renderer.setReflectorLight(&otherLight);
 
 	//spremamo ucitane podatke u objekt tipa Mesh
-    aiMesh *aimesh = scene->mMeshes[0];
-    Mesh mesh(aimesh);
+	if (!scene->mMeshes[0]) std::cout << "No mesh 0!" << std::endl;
+    //aiMesh *aimesh = scene->mMeshes[0];
+    //Mesh mesh0(aimesh);
+	Mesh meshRightWingBase(scene->mMeshes[0]);
+
+	if (!scene->mMeshes[1]) std::cout << "No mesh 1!" << std::endl;
+    //aiMesh *aimesh1 = scene->mMeshes[1];
+    //Mesh mesh1(aimesh1);
+	Mesh meshLeftWingBase(scene->mMeshes[1]);
+
+	Mesh meshRightWing(scene->mMeshes[2]);
+	Mesh meshLeftWing(scene->mMeshes[3]);
+	Mesh meshBase(scene->mMeshes[4]);
+	Mesh meshCockpit(scene->mMeshes[5]);
+	Mesh meshGlass(scene->mMeshes[6]);
+	Mesh meshPike(scene->mMeshes[7]);
+	Mesh meshRightWingTip(scene->mMeshes[8]);
+	Mesh meshLeftWingTip(scene->mMeshes[9]);
+	Mesh meshAsteroid(scene->mMeshes[10]);
+
+	//provodimo normalizaciju
+	meshRightWingBase.normalize();
+	meshLeftWingBase.normalize();
+
+	meshRightWing.normalize();
+	meshLeftWing.normalize();
+	meshBase.normalize();
+	meshCockpit.normalize();
+	meshGlass.normalize();
+	meshPike.normalize();
+	meshRightWingTip.normalize();
+	meshLeftWingTip.normalize();
+	meshAsteroid.normalize();
 
 	//ucitavamo materijal i teksturu objekta
 	aiColor3D aK, dK, sK;
@@ -209,36 +237,39 @@ int main(int argc, char *argv[]) {
 	Texture diffuseTexture;
 
 	if (scene->HasMaterials()) {
+		
+		for (int i = 0; i < scene->mNumMeshes; i++) {
 
-		scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
-		scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
-		scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
-		scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_SHININESS, shiny);
+			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
+			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
+			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
+			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_SHININESS, shiny);
 
-		material.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
-		material.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
-		material.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
-		material.gloss = shiny;
+			material.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
+			material.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
+			material.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
+			material.gloss = shiny;
 
-		aiString naziv;
-		scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_NAME, naziv);
-	
-		aiString texturePosition;
-		int width, height, nrChannels;
-		unsigned char *data;
-		if (AI_SUCCESS == scene->mMaterials[aimesh->mMaterialIndex]->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), texturePosition)) {
-			std::string texPath(resPath);
-			texPath.append("\\glava\\");
-			texPath.append(texturePosition.C_Str());
+			aiString naziv;
+			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_NAME, naziv);
+		
+			aiString texturePosition;
+			int width, height, nrChannels;
+			unsigned char *data;
+			if (AI_SUCCESS == scene->mMaterials[scene->mMeshes[i]->mMaterialIndex]->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), texturePosition)) {
+				std::string texPath(resPath);
+				texPath.append("\\spaceship\\");
+				texPath.append(texturePosition.C_Str());
 
-			data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
+				data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
 
-			diffuseTexture.setTexWidth(width);
-			diffuseTexture.setTexHeight(height);
-			diffuseTexture.generateTexture(data);
-			material.addDiffuseTexture(&diffuseTexture);
+				diffuseTexture.setTexWidth(width);
+				diffuseTexture.setTexHeight(height);
+				diffuseTexture.generateTexture(data);
+				material.addDiffuseTexture(&diffuseTexture);
 
-			stbi_image_free(data);
+				stbi_image_free(data);
+			}
 		}
 
 	} else {
@@ -277,83 +308,107 @@ int main(int argc, char *argv[]) {
 		glUniform1f(uniformRoughness, roughness);
 	glUseProgram(0);
 
-	//provodimo normalizaciju
-	mesh.normalize();
+	std::cout << "So far so good..." << std::endl;
 
-	//od Shadera, Mesha i Materijala stvaramo objekte, transformiramo ih i dodajemo u crtaca
-	Object object(&mesh, sjencar[1], nullptr, sjencar[3]);
-	//object.setScale(glm::vec3(0.5, 0.5, 0.5));
-	//object.globalMove(glm::vec3(2.0, 0.0, 0.0));
-	renderer.registerObject(&object);
+	//od Shadera, Mesha i Materijala stvaramo objekte i dodajemo ih u crtaca
+	Object objectBase(&meshBase, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectBase);
 	
-	Object object_two(&mesh, sjencar[1], nullptr, sjencar[3]);
-	//object_two.setScale(glm::vec3(0.5, 0.5, 0.5));
-	//object_two.globalMove(glm::vec3(-2.0, 0.0, 0.0));
-	renderer.registerObject(&object_two);
+	Object objectCockpit(&meshCockpit, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectCockpit);
 
-	Object object_three(&mesh, sjencar[1], nullptr, sjencar[3]);
-	renderer.registerObject(&object_three);
+	Object objectRightWingBase(&meshRightWingBase, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectRightWingBase);
+
+	Object objectLeftWingBase(&meshLeftWingBase, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectLeftWingBase);
+
+	Object objectPike(&meshPike, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectPike);
+
+	Object objectGlass(&meshGlass, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectGlass);
+
+	Object objectRightWing(&meshRightWing, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectRightWing);
+
+	Object objectLeftWing(&meshLeftWing, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectLeftWing);
+
+	Object objectRightWingTip(&meshRightWingTip, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectRightWingTip);
+
+	Object objectLeftWingTip(&meshLeftWingTip, sjencar[1], nullptr, sjencar[3]);
+	renderer.registerObject(&objectLeftWingTip);
 
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
 	//ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0)); vatra
 	ParticleSpawner particleSpawner(1.0, 1.0, 2000, 200, 0.1, 1.0, 0.001, 2, glm::vec3(1.0f, 1.0f, 0.0f));
 	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
-	//paspObject.moveLocation(glm::vec3(0.0, -2.0, 0.0));
-	//paspObject.rotate(glm::mat4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 	paspObject.loadParticles();
 	renderer.registerPaspObject(&paspObject);
 
 	//gradimo graf scene
 	SceneGraph sceneGraph;
 
-	SGNode robothead1(&object, "robot_head_1", false);
-	SGNode robothead2(&object_two, "robot_head_2", false);
+	SGNode spaceshipBase(&objectBase, "base", false);
+	SGNode spaceshipCockpit(&objectCockpit, "cockpit", false);
+	SGNode spaceshipRightWingBase(&objectRightWingBase, "right_wing_base", false);
+	SGNode spaceshipLeftWingBase(&objectLeftWingBase, "left_wing_base", false);
+	SGNode spaceshipPike(&objectPike, "pike", false);
+	SGNode spaceshipGlass(&objectGlass, "glass", false);
+	SGNode spaceshipRightWing(&objectRightWing, "right_wing", false);
+	SGNode spaceshipLeftWing(&objectLeftWing, "left_wing", false);
+	SGNode spaceshipRightWingTip(&objectRightWingTip, "right_wing_tip", false);
+	SGNode spaceshipLeftWingTip(&objectLeftWingTip, "left_wing_tip", false);
+
 	SGNode particle1(&paspObject, "particles_1", true);
-	SGNode robothead3(&object_three, "robot_head_3", false);
 
 	SGNode camera1(&camera, "camera_1", false);
 
 	//postavljamo input managera
-	InputManager inputManager(window, mWidth, mHeight, &sceneGraph, &camera1, &robothead1);
+	InputManager inputManager(window, mWidth, mHeight, &sceneGraph, &camera1, &spaceshipBase);
 
-	sceneGraph.root.children.push_back(&robothead1);
+	sceneGraph.root.children.push_back(&spaceshipBase);
+	sceneGraph.root.children[0]->children.push_back(&spaceshipCockpit);
+	sceneGraph.root.children[0]->children.push_back(&spaceshipRightWingBase);
+	sceneGraph.root.children[0]->children.push_back(&spaceshipLeftWingBase);
+	sceneGraph.root.children[0]->children[0]->children.push_back(&spaceshipPike);
+	sceneGraph.root.children[0]->children[0]->children.push_back(&spaceshipGlass);
+	sceneGraph.root.children[0]->children[1]->children.push_back(&spaceshipRightWing);
+	sceneGraph.root.children[0]->children[2]->children.push_back(&spaceshipLeftWing);
+	sceneGraph.root.children[0]->children[1]->children[0]->children.push_back(&spaceshipRightWingTip);
+	sceneGraph.root.children[0]->children[2]->children[0]->children.push_back(&spaceshipLeftWingTip);
+
 	sceneGraph.root.children.push_back(&particle1);
-	sceneGraph.root.children[0]->children.push_back(&robothead2);
-	sceneGraph.root.children[0]->children.push_back(&robothead3);
-	//sceneGraph.root.children[0]->children.push_back(&camera1);
 
 	sceneGraph.root.children.push_back(&camera1);
 
-	sceneGraph.moveSubtree("robot_head_1", glm::vec3(0.0, 0.0, -10.0));
-	sceneGraph.moveSubtree("robot_head_2", glm::vec3(2.0, 2.0, 0.0));
-	sceneGraph.moveSubtree("robot_head_3", glm::vec3(-2.0, 2.0, 0.0));
-	//sceneGraph.moveSubtree("particles_1", glm::vec3(2.5, 0.0, 0.0));
+	sceneGraph.moveSubtree("base", glm::vec3(0.0, 0.0, -10.0));
+	sceneGraph.moveSubtree("cockpit", glm::vec3(0.0, 0.0, 1.4));
+	sceneGraph.moveSubtree("right_wing_base", glm::vec3(-0.45, -0.1, 0.0));
+	sceneGraph.moveSubtree("left_wing_base", glm::vec3(0.45, -0.1, 0.0));
+	sceneGraph.moveSubtree("pike", glm::vec3(0.0, 0.0, 1.5));
+	sceneGraph.moveSubtree("glass", glm::vec3(0.0, 0.45, -0.2));
+	sceneGraph.moveSubtree("right_wing", glm::vec3(-2.05, -0.1, 0.0));
+	sceneGraph.moveSubtree("left_wing", glm::vec3(2.05, -0.1, 0.0));
+	sceneGraph.moveSubtree("right_wing_tip", glm::vec3(-1.525, -0.15, 0.55));
+	sceneGraph.moveSubtree("left_wing_tip", glm::vec3(1.525, -0.15, 0.55));
 
-	//sceneGraph.rotateSubtree("robot_head_1", glm::vec3(0.0, 1.0, 0.0), 45.0f);
-	sceneGraph.scaleSubtree("robot_head_3", glm::vec3(0.5, 0.5, 0.5));
-	sceneGraph.scaleSubtree("robot_head_1", glm::vec3(0.1, 0.1, 0.1));
+	sceneGraph.scaleSubtree("right_wing_base", glm::vec3(0.7, 0.7, 0.7));
+	sceneGraph.scaleSubtree("left_wing_base", glm::vec3(0.7, 0.7, 0.7));
+	sceneGraph.scaleSubtree("glass", glm::vec3(0.5, 0.5, 0.5));
+	sceneGraph.scaleSubtree("right_wing", glm::vec3(1.4, 1.4, 1.4));
+	sceneGraph.scaleSubtree("left_wing", glm::vec3(1.4, 1.4, 1.4));
+	sceneGraph.scaleSubtree("right_wing_tip", glm::vec3(0.75, 0.75, 0.75));
+	sceneGraph.scaleSubtree("left_wing_tip", glm::vec3(0.75, 0.75, 0.75));
 
-	camera1.item->setPosition(robothead1.item->getPosition());
+	//sceneGraph.scaleSubtree("base", glm::vec3(0.2, 0.2, 0.2));
 
-	/*
-	std::cout << robothead1.item->getFront().x << " " << robothead1.item->getFront().y << " " << robothead1.item->getFront().z << std::endl;
-	std::cout << robothead1.item->getUp().x << " " << robothead1.item->getUp().y << " " << robothead1.item->getUp().z << std::endl;
-	std::cout << robothead1.item->getRight().x << " " << robothead1.item->getRight().y << " " << robothead1.item->getRight().z << std::endl;
-	
-	std::cout << camera1.item->getFront().x << " " << camera1.item->getFront().y << " " << camera1.item->getFront().z << std::endl;
-	std::cout << camera1.item->getUp().x << " " << camera1.item->getUp().y << " " << camera1.item->getUp().z << std::endl;
-	std::cout << camera1.item->getRight().x << " " << camera1.item->getRight().y << " " << camera1.item->getRight().z << std::endl;
-	*/
-
+	camera1.item->setPosition(spaceshipBase.item->getPosition());
 	sceneGraph.moveSubtree("camera_1", glm::vec3(0.0, 0.0, 5.0));
 	sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 180.0f);
-
-	/*
-	for (int i = 0; i < particleSpawner.countVertices(); i++) {
-		std::cout << particleSpawner.getVertexAt(i).x << " " << particleSpawner.getVertexAt(i).y << " " << particleSpawner.getVertexAt(i).z << std::endl;
-	}
-	*/
 
 	//stvaramo crtaca putanje
 	
@@ -385,10 +440,7 @@ int main(int argc, char *argv[]) {
 		deltaTime = FPSManager.maintainFPS();
 
 		if (inputManager.currentInputProfile == InputProfile::FlyingCamera) inputManager.handleInput(&camera1, inFocus);
-		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&robothead1, inFocus);
-
-		//sceneGraph.moveSubtree("robot_head_1", glm::vec3(deltaTime, 0.0, 0.0));
-		//sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 0.05f);
+		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&spaceshipBase, inFocus);
 
 		//iscrtavanje objekta
 		glUseProgram(sjencar[0]->ID);

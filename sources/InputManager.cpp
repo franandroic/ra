@@ -36,8 +36,8 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height, SceneGra
 
     y_mouse = 0;
 
-    turnDeg = 0.0f;
-    turnConstraint = 45.0f;
+    rollDeg = 0.0f;
+    rollConstraint = 80.0f;
     pitchDeg = 0.0f;
     pitchConstraint = 45.0f;
 
@@ -46,7 +46,7 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height, SceneGra
     cameraMountNode = inCameraMountNode;
 
     cameraPitchDeg = 0.0f;
-    cameraPitchConstraint = 45.0f;
+    cameraPitchConstraint = 80.0f;
 
     glfwSetWindowUserPointer(inWindow, this);
     glfwSetKeyCallback(inWindow, keyCallbackStatic);
@@ -135,29 +135,49 @@ void InputManager::handleInput(SGNode *node, bool inFocus) {
 	}
 
     if (currentInputProfile == InputProfile::VehicleControl) {
-        if (bRight && turnDeg < turnConstraint) {
+        if (bLeft && rollDeg < rollConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), 0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), 0.1f);
             cameraNode->doRotate = true;
-            turnDeg += 0.1f;
-        }
-        if (bLeft && turnDeg > -turnConstraint) {
+            rollDeg += 0.1f;
+        } else if (!bLeft && rollDeg > 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -0.1f);
             cameraNode->doRotate = true;
-            turnDeg -= 0.1f;
+            rollDeg -= 0.1f;
+        } 
+        if (bRight && rollDeg > -rollConstraint) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -0.1f);
+            cameraNode->doRotate = true;
+            rollDeg -= 0.1f;
+        } else if (!bRight && rollDeg < 0.0f) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), 0.1f);
+            cameraNode->doRotate = true;
+            rollDeg += 0.1f;
         }
         if (bUp && pitchDeg > -pitchConstraint) {
             cameraNode->doRotate = false;
             sceneGraph->rotateSubtree(node->name, node->item->getRight(), -0.1f);
             cameraNode->doRotate = true;
             pitchDeg -= 0.1f;
+        } else if (!bUp && pitchDeg < 0.0f) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), 0.1f);
+            cameraNode->doRotate = true;
+            pitchDeg += 0.1f;
         }
         if (bDown && pitchDeg < pitchConstraint) {
             cameraNode->doRotate = false;
             sceneGraph->rotateSubtree(node->name, node->item->getRight(), 0.1f);
             cameraNode->doRotate = true;
             pitchDeg += 0.1f;
+        } else if (!bDown && pitchDeg > 0.0f) {
+            cameraNode->doRotate = false;
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -0.1f);
+            cameraNode->doRotate = true;
+            pitchDeg -= 0.1f;
         }
     }
 
@@ -214,8 +234,8 @@ void InputManager::setInputProfile(InputProfile newInputProfile) {
         cameraNode->item->setPosition(cameraMountNode->item->getPosition());
         cameraNode->item->setOrientation(-cameraMountNode->item->getFront(), cameraMountNode->item->getUp(), cameraMountNode->item->getRight());
 
-        sceneGraph->moveSubtree(cameraNode->name, 0.8f * cameraNode->item->getUp());
-        sceneGraph->moveSubtree(cameraNode->name, 1.0f * cameraNode->item->getFront());
+        sceneGraph->moveSubtree(cameraNode->name, 8.0f * cameraNode->item->getUp());
+        sceneGraph->moveSubtree(cameraNode->name, 10.0f * cameraNode->item->getFront());
         sceneGraph->rotateSubtree(cameraNode->name, cameraNode->item->getRight(), 25.0f);
 
     } else {
