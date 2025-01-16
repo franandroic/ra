@@ -41,9 +41,9 @@ void Object::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 persp
             glUniform3fv(uniformLocationSK, 1, glm::value_ptr(material->specularKoeficient));
             glUniform1f(uniformLocationN, material->gloss);
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, material->getDiffuseTexture()->getTextureID());
-            glUniform1i(glGetUniformLocation(shader->ID, "diffuseMap"), 0);
+            //glActiveTexture(GL_TEXTURE0);
+            //glBindTexture(GL_TEXTURE_2D, material->getDiffuseTexture()->getTextureID());
+            //glUniform1i(glGetUniformLocation(shader->ID, "diffuseMap"), 0);
         }
 
             glActiveTexture(GL_TEXTURE1);

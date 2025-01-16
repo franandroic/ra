@@ -57,11 +57,9 @@ float isInShadow(vec4 sPos)
 
 void main()
 {
-    /*
     vec3 l = normalize(lightPos - vPos);
     vec3 r = reflect(-l, normal);
     vec3 v = normalize(eyePos - vPos);
-    */
 
     vec3 l2 = normalize(lightPos2 - vPos);
     vec3 r2 = reflect(-l2, normal);
@@ -73,13 +71,17 @@ void main()
     float curAngle = dot(l2, normalize(-lightDir2));
 
     //vec3 color = aI * aK + sI * (texture(diffuseMap, vTex).rgb * max(dot(l, normal), 0.0) + sK * pow(max(dot(r, v), 0.0), n)); //texture(glossMap, vTex).r * 255
+    vec3 color = aI * aK + sI * (dK  * max(dot(l, normal), 0.0) + sK * pow(max(dot(r, v), 0.0), n));
     
-    vec3 color2 = aI2 * texture(diffuseMap, vTex).rgb;
+    //vec3 color2 = aI2 * texture(diffuseMap, vTex).rgb;
+    vec3 color2 = aI2 * aK;
 
     if (curAngle > lightAngle2) {
-        color2 += (1.0 - isInShadow(shadowPos)) * (sI2 * (texture(diffuseMap, vTex).rgb * max(dot(l2, normal), 0.0) + sK * pow(max(dot(r2, v2), 0.0), n))); //texture(glossMap, vTex).r * 255
+        //color2 += (1.0 - isInShadow(shadowPos)) * (sI2 * (texture(diffuseMap, vTex).rgb * max(dot(l2, normal), 0.0) + sK * pow(max(dot(r2, v2), 0.0), n))); //texture(glossMap, vTex).r * 255
+        color2 += (1.0 - isInShadow(shadowPos)) * (sI2 * (dK * max(dot(l2, normal), 0.0) + sK * pow(max(dot(r2, v2), 0.0), n)));
     }
 
     //FragColor = vec4(texture(diffuseMap, vTex).rgb, 1.0);
-    FragColor = vec4(color2, 1.0);
+    //FragColor = vec4(color2, 1.0);
+    FragColor = vec4(cutoff(color, color2), 1.0);
 }

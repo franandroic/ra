@@ -58,6 +58,16 @@ private:
     float cameraPitchDeg;
     float cameraPitchConstraint;
 
+    SGNode *reflectorNode;
+
+    float cameraVelocity;
+
+    float vehicleVelocity;
+
+    float cameraTurnRate;
+
+    float vehicleTurnRate;
+
 public:
 
     InputProfile currentInputProfile;
@@ -81,5 +91,7 @@ public:
     void addAnimator(Animator *inAnimator);
 
     void setInputProfile(InputProfile newInputProfile);
+
+    void setReflector(SGNode *inReflector);
 
 };

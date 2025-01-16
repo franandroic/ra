@@ -48,6 +48,16 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height, SceneGra
     cameraPitchDeg = 0.0f;
     cameraPitchConstraint = 80.0f;
 
+    reflectorNode = nullptr;
+
+    cameraVelocity = 0.02f;
+
+    vehicleVelocity = 0.02f;
+
+    cameraTurnRate = 1.5f;
+
+    vehicleTurnRate = 0.1f;
+
     glfwSetWindowUserPointer(inWindow, this);
     glfwSetKeyCallback(inWindow, keyCallbackStatic);
 
@@ -121,63 +131,63 @@ void InputManager::handleInput(SGNode *node, bool inFocus) {
     sceneGraph->moveSubtree(node->name, movementVector);
     
     if (x_mouse < 0) {
-        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -1.0f);
+        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -cameraTurnRate);
 	} else if (x_mouse > 0) {
-        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), 1.0f);
+        sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), cameraTurnRate);
 	}
 
 	if (y_mouse > 0 && cameraPitchDeg > -cameraPitchConstraint) {
-        sceneGraph->rotateSubtree(node->name, node->item->getRight(), -1.0f);
+        sceneGraph->rotateSubtree(node->name, node->item->getRight(), -cameraTurnRate);
 		cameraPitchDeg--;
 	} else if (y_mouse < 0 && cameraPitchDeg < cameraPitchConstraint) {
-        sceneGraph->rotateSubtree(node->name, node->item->getRight(), 1.0f);
+        sceneGraph->rotateSubtree(node->name, node->item->getRight(), cameraTurnRate);
 		cameraPitchDeg++;
 	}
 
     if (currentInputProfile == InputProfile::VehicleControl) {
         if (bLeft && rollDeg < rollConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), 0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate);
             cameraNode->doRotate = true;
-            rollDeg += 0.1f;
+            rollDeg += vehicleTurnRate;
         } else if (!bLeft && rollDeg > 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate);
             cameraNode->doRotate = true;
-            rollDeg -= 0.1f;
+            rollDeg -= vehicleTurnRate;
         } 
         if (bRight && rollDeg > -rollConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate);
             cameraNode->doRotate = true;
-            rollDeg -= 0.1f;
+            rollDeg -= vehicleTurnRate;
         } else if (!bRight && rollDeg < 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), 0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate);
             cameraNode->doRotate = true;
-            rollDeg += 0.1f;
+            rollDeg += vehicleTurnRate;
         }
         if (bUp && pitchDeg > -pitchConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate);
             cameraNode->doRotate = true;
-            pitchDeg -= 0.1f;
+            pitchDeg -= vehicleTurnRate;
         } else if (!bUp && pitchDeg < 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), 0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate);
             cameraNode->doRotate = true;
-            pitchDeg += 0.1f;
+            pitchDeg += vehicleTurnRate;
         }
         if (bDown && pitchDeg < pitchConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), 0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate);
             cameraNode->doRotate = true;
-            pitchDeg += 0.1f;
+            pitchDeg += vehicleTurnRate;
         } else if (!bDown && pitchDeg > 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -0.1f);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate);
             cameraNode->doRotate = true;
-            pitchDeg -= 0.1f;
+            pitchDeg -= vehicleTurnRate;
         }
     }
 
@@ -188,16 +198,16 @@ void InputManager::handleKeyboardInput(Transformable *transformable) {
 
     if (currentInputProfile == InputProfile::FlyingCamera) {
 
-        if (bForward) movementVector += -0.002f * transformable->getFront();
-        if (bBackward) movementVector += 0.002f * transformable->getFront();
-        if (bRight) movementVector += 0.002f * transformable->getRight();
-        if (bLeft) movementVector += -0.002f * transformable->getRight();
-        if (bUp) movementVector += 0.002f * transformable->getUp();
-        if (bDown) movementVector += -0.002f * transformable->getUp();
+        if (bForward) movementVector += -cameraVelocity * transformable->getFront();
+        if (bBackward) movementVector += cameraVelocity * transformable->getFront();
+        if (bRight) movementVector += cameraVelocity * transformable->getRight();
+        if (bLeft) movementVector += -cameraVelocity * transformable->getRight();
+        if (bUp) movementVector += cameraVelocity * transformable->getUp();
+        if (bDown) movementVector += -cameraVelocity * transformable->getUp();
 
     } else if (currentInputProfile == InputProfile::VehicleControl) {
-        if (bForward) movementVector += 0.002f * transformable->getFront();
-        if (bBackward) movementVector += -0.002f * transformable->getFront();
+        if (bForward) movementVector += vehicleVelocity * transformable->getFront();
+        if (bBackward) movementVector += -vehicleVelocity * transformable->getFront();
     }
 }
 
@@ -245,4 +255,11 @@ void InputManager::setInputProfile(InputProfile newInputProfile) {
     }
 
     currentInputProfile = newInputProfile;
+}
+
+void InputManager::setReflector(SGNode *inReflector) {
+
+    reflectorNode = inReflector;
+    //reflectorNode->doRotate = false;
+    
 }

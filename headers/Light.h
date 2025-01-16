@@ -27,4 +27,12 @@ public:
 
     int DPheight;
 
+    glm::vec3 getAmbientIntensity();
+
+    void setAmbientIntensity(glm::vec3 inaI);
+
+    glm::vec3 getSourceIntensity();
+
+    void setSourceIntensity(glm::vec3 insI);
+
 };

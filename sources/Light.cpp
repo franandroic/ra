@@ -35,3 +35,23 @@ void Light::generateDepthMap() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DPwidth, DPheight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
 }
+
+glm::vec3 Light::getAmbientIntensity() {
+
+    return ambientIntensity;
+}
+
+void Light::setAmbientIntensity(glm::vec3 inaI) {
+
+    ambientIntensity = inaI;
+}
+
+glm::vec3 Light::getSourceIntensity() {
+
+    return sourceIntensity;
+}
+
+void Light::setSourceIntensity(glm::vec3 insI) {
+
+    sourceIntensity = insI;
+}

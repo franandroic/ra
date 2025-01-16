@@ -4,7 +4,7 @@ ReflectorLight::ReflectorLight() {
 
     nearPlane = 0.1f;
     farPlane = 10.0f;
-    fovHalfAngle = 30.0f;
+    fovHalfAngle = 15.0f;
     aspectRatio = 1.6f;
 }
 

@@ -184,12 +184,12 @@ int main(int argc, char *argv[]) {
 	Camera camera(0.005f, 10.0f, 30.0f, (float)mWidth/(float)mHeight);
 
 	//stvaramo izvor svjetla
-	Light light(glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
+	Light light(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.5, 0.5, 0.5));
 
 	//stvaramo reflektorski izvor svjetla
 	ReflectorLight otherLight;
-	otherLight.globalMove(glm::vec3(0.0, 0.5, 5.0));
-	otherLight.rotate(glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0)));
+	otherLight.setAmbientIntensity(glm::vec3(0.2, 0.2, 0.2));
+	otherLight.setSourceIntensity(glm::vec3(0.9, 0.9, 0.9));
 
 	//inicijaliziramo crtaca
 	Renderer renderer(&camera, &light);
@@ -233,9 +233,49 @@ int main(int argc, char *argv[]) {
 	//ucitavamo materijal i teksturu objekta
 	aiColor3D aK, dK, sK;
 	float shiny;
-	Material material;
-	Texture diffuseTexture;
+	Material materialAsteroid;
+	Material materialGlass;
+	Material materialMetal;
+	Material materialWing;
 
+	scene->mMaterials[1]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
+	scene->mMaterials[1]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
+	scene->mMaterials[1]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
+	scene->mMaterials[1]->Get(AI_MATKEY_SHININESS, shiny);
+	materialAsteroid.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
+	materialAsteroid.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
+	materialAsteroid.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
+	materialAsteroid.gloss = shiny;
+
+	scene->mMaterials[2]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
+	scene->mMaterials[2]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
+	scene->mMaterials[2]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
+	scene->mMaterials[2]->Get(AI_MATKEY_SHININESS, shiny);
+	materialGlass.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
+	materialGlass.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
+	materialGlass.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
+	materialGlass.gloss = shiny;
+
+	scene->mMaterials[3]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
+	scene->mMaterials[3]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
+	scene->mMaterials[3]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
+	scene->mMaterials[3]->Get(AI_MATKEY_SHININESS, shiny);
+	materialMetal.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
+	materialMetal.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
+	materialMetal.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
+	materialMetal.gloss = shiny;
+
+	scene->mMaterials[4]->Get(AI_MATKEY_COLOR_AMBIENT, aK);
+	scene->mMaterials[4]->Get(AI_MATKEY_COLOR_DIFFUSE, dK);
+	scene->mMaterials[4]->Get(AI_MATKEY_COLOR_SPECULAR, sK);
+	scene->mMaterials[4]->Get(AI_MATKEY_SHININESS, shiny);
+	materialWing.ambientKoeficient = glm::vec3(aK.r, aK.g, aK.b);
+	materialWing.diffuseKoeficient = glm::vec3(dK.r, dK.g, dK.b);
+	materialWing.specularKoeficient = glm::vec3(sK.r, sK.g, sK.b);
+	materialWing.gloss = shiny;
+
+	/*
+	Texture diffuseTexture;
 	if (scene->HasMaterials()) {
 		
 		for (int i = 0; i < scene->mNumMeshes; i++) {
@@ -275,6 +315,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		std::cout << "No set materials." << std::endl;
 	}
+	*/
 
 	//ucitavanje sjencara
 	Shader *sjencar[5];
@@ -311,35 +352,41 @@ int main(int argc, char *argv[]) {
 	std::cout << "So far so good..." << std::endl;
 
 	//od Shadera, Mesha i Materijala stvaramo objekte i dodajemo ih u crtaca
-	Object objectBase(&meshBase, sjencar[1], nullptr, sjencar[3]);
+	Object objectBase(&meshBase, sjencar[1], &materialMetal, sjencar[3]);
 	renderer.registerObject(&objectBase);
 	
-	Object objectCockpit(&meshCockpit, sjencar[1], nullptr, sjencar[3]);
+	Object objectCockpit(&meshCockpit, sjencar[1], &materialMetal, sjencar[3]);
 	renderer.registerObject(&objectCockpit);
 
-	Object objectRightWingBase(&meshRightWingBase, sjencar[1], nullptr, sjencar[3]);
+	Object objectRightWingBase(&meshRightWingBase, sjencar[1], &materialWing, sjencar[3]);
 	renderer.registerObject(&objectRightWingBase);
 
-	Object objectLeftWingBase(&meshLeftWingBase, sjencar[1], nullptr, sjencar[3]);
+	Object objectLeftWingBase(&meshLeftWingBase, sjencar[1], &materialWing, sjencar[3]);
 	renderer.registerObject(&objectLeftWingBase);
 
-	Object objectPike(&meshPike, sjencar[1], nullptr, sjencar[3]);
+	Object objectPike(&meshPike, sjencar[1], &materialMetal, sjencar[3]);
 	renderer.registerObject(&objectPike);
 
-	Object objectGlass(&meshGlass, sjencar[1], nullptr, sjencar[3]);
+	Object objectGlass(&meshGlass, sjencar[1], &materialGlass, sjencar[3]);
 	renderer.registerObject(&objectGlass);
 
-	Object objectRightWing(&meshRightWing, sjencar[1], nullptr, sjencar[3]);
+	Object objectRightWing(&meshRightWing, sjencar[1], &materialWing, sjencar[3]);
 	renderer.registerObject(&objectRightWing);
 
-	Object objectLeftWing(&meshLeftWing, sjencar[1], nullptr, sjencar[3]);
+	Object objectLeftWing(&meshLeftWing, sjencar[1], &materialWing, sjencar[3]);
 	renderer.registerObject(&objectLeftWing);
 
-	Object objectRightWingTip(&meshRightWingTip, sjencar[1], nullptr, sjencar[3]);
+	Object objectRightWingTip(&meshRightWingTip, sjencar[1], &materialMetal, sjencar[3]);
 	renderer.registerObject(&objectRightWingTip);
 
-	Object objectLeftWingTip(&meshLeftWingTip, sjencar[1], nullptr, sjencar[3]);
+	Object objectLeftWingTip(&meshLeftWingTip, sjencar[1], &materialMetal, sjencar[3]);
 	renderer.registerObject(&objectLeftWingTip);
+
+	std::vector<Object *> objectsAsteroids;
+	for (int i = 0; i < 100; i++) {
+		objectsAsteroids.push_back(new Object(&meshAsteroid, sjencar[1], &materialAsteroid, sjencar[3]));
+		renderer.registerObject(objectsAsteroids[i]);
+	}
 
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
@@ -363,9 +410,17 @@ int main(int argc, char *argv[]) {
 	SGNode spaceshipRightWingTip(&objectRightWingTip, "right_wing_tip", false);
 	SGNode spaceshipLeftWingTip(&objectLeftWingTip, "left_wing_tip", false);
 
+	//SGNode asteroid0(objectsAsteroids[0], "asteroid_0", false);
+	std::vector<SGNode *> asteroids;
+	for (int i = 0; i < objectsAsteroids.size(); i++) {
+		asteroids.push_back(new SGNode(objectsAsteroids[i], "asteroid_" + std::to_string(i), false));
+	}
+
 	SGNode particle1(&paspObject, "particles_1", true);
 
 	SGNode camera1(&camera, "camera_1", false);
+
+	SGNode reflector1(&otherLight, "reflector_1", false);
 
 	//postavljamo input managera
 	InputManager inputManager(window, mWidth, mHeight, &sceneGraph, &camera1, &spaceshipBase);
@@ -381,7 +436,27 @@ int main(int argc, char *argv[]) {
 	sceneGraph.root.children[0]->children[1]->children[0]->children.push_back(&spaceshipRightWingTip);
 	sceneGraph.root.children[0]->children[2]->children[0]->children.push_back(&spaceshipLeftWingTip);
 
+	//sceneGraph.root.children.push_back(&asteroid0);
+	float asteroidScaleFactor = 0.0f;
+	for (int i = 0; i < asteroids.size(); i++) {
+		sceneGraph.root.children.push_back(asteroids[i]);
+		sceneGraph.moveSubtree(asteroids[i]->name, glm::vec3(((float) rand() / RAND_MAX) * 100.0f - 50.0f,
+															 ((float) rand() / RAND_MAX) * 100.0f - 50.0f,
+															 ((float) rand() / RAND_MAX) * 100.0f - 50.0f));
+		
+		asteroidScaleFactor = ((float) rand() / RAND_MAX) * 2.0f + 1.0f;
+		sceneGraph.scaleSubtree(asteroids[i]->name, glm::vec3(asteroidScaleFactor + ((float) rand() / RAND_MAX),
+															  asteroidScaleFactor + ((float) rand() / RAND_MAX),
+															  asteroidScaleFactor + ((float) rand() / RAND_MAX)));
+
+		sceneGraph.rotateSubtree(asteroids[i]->name, glm::vec3(1.0, 0.0, 0.0), ((float) rand() / RAND_MAX) * 90.0f);
+		sceneGraph.rotateSubtree(asteroids[i]->name, glm::vec3(0.0, 1.0, 0.0), ((float) rand() / RAND_MAX) * 90.0f);
+		sceneGraph.rotateSubtree(asteroids[i]->name, glm::vec3(0.0, 0.0, 1.0), ((float) rand() / RAND_MAX) * 90.0f);
+	}
+
 	sceneGraph.root.children.push_back(&particle1);
+
+	sceneGraph.root.children[0]->children.push_back(&reflector1);
 
 	sceneGraph.root.children.push_back(&camera1);
 
@@ -396,6 +471,10 @@ int main(int argc, char *argv[]) {
 	sceneGraph.moveSubtree("right_wing_tip", glm::vec3(-1.525, -0.15, 0.55));
 	sceneGraph.moveSubtree("left_wing_tip", glm::vec3(1.525, -0.15, 0.55));
 
+	sceneGraph.moveSubtree("reflector_1", glm::vec3(0.0, 0.0, 2.7));
+	//sceneGraph.rotateSubtree("reflector_1", glm::vec3(0.0, 1.0, 0.0), 200.0f);
+	inputManager.setReflector(&reflector1);
+
 	sceneGraph.scaleSubtree("right_wing_base", glm::vec3(0.7, 0.7, 0.7));
 	sceneGraph.scaleSubtree("left_wing_base", glm::vec3(0.7, 0.7, 0.7));
 	sceneGraph.scaleSubtree("glass", glm::vec3(0.5, 0.5, 0.5));
@@ -407,8 +486,8 @@ int main(int argc, char *argv[]) {
 	//sceneGraph.scaleSubtree("base", glm::vec3(0.2, 0.2, 0.2));
 
 	camera1.item->setPosition(spaceshipBase.item->getPosition());
-	sceneGraph.moveSubtree("camera_1", glm::vec3(0.0, 0.0, 5.0));
-	sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 180.0f);
+	sceneGraph.moveSubtree("camera_1", glm::vec3(2.5, 1.0, 5.0));
+	sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 200.0f);
 
 	//stvaramo crtaca putanje
 	
