@@ -102,3 +102,22 @@ void SGNode::scaleNode(std::string nodeName, glm::vec3 factor, bool foundNode, g
 
     }
 }
+
+void SGNode::detachNode(std::string nodeName, bool foundNode, std::vector<SGNode *> &detachedNodes) {
+
+    if (foundNode == true || name == nodeName) {
+
+        for (int i = 0; i < children.size(); i++) {
+            children[i]->detachNode(nodeName, true, detachedNodes);
+            detachedNodes.push_back(children[i]);
+        }
+
+        children.clear();
+
+    } else {
+
+        for (int i = 0; i < children.size(); i++) {
+            children[i]->detachNode(nodeName, false, detachedNodes);
+        }
+    }
+}

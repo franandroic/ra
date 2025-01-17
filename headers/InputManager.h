@@ -94,4 +94,10 @@ public:
 
     void setReflector(SGNode *inReflector);
 
+    void selfDestruct();
+
+    bool bVehicleDestroyed;
+
+    std::vector<glm::vec3> partDirections;
+
 };

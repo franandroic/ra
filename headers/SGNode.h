@@ -31,6 +31,8 @@ public:
 
     void scaleNode(std::string nodeName, glm::vec3 factor, bool foundNode, glm::vec3 parentPosition);
 
+    void detachNode(std::string nodeName, bool foundNode, std::vector<SGNode *> &detachedNodes);
+
 private:
 
     glm::vec3 tempVec;

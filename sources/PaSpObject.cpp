@@ -19,6 +19,8 @@ PaSpObject::PaSpObject(glm::vec3 pos, ParticleSpawner *inPs, Shader *inShader) :
     timeOfLastCleanup = std::chrono::steady_clock::now();
 
     particleSpawner->setSpawnerLocation(getPosition());
+
+    loadParticles();
 }
 
 void PaSpObject::render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix, double deltaTime) {

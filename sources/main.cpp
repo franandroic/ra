@@ -51,6 +51,10 @@ bool inFocus = true;
 bool bSetToAnimate = false;
 bool bAnimating = false;
 
+//kolizija
+bool collisionHappened = false;
+std::string nodeToDetach = "";
+
 //parametri za toon sjencanje
 glm::vec3 darkest(0.25, 0.11, 0.00);
 glm::vec3 darker(0.41, 0.18, 0.01);
@@ -135,6 +139,41 @@ void focus_callback(GLFWwindow *window, int focused) {
 
 	if (focused) inFocus = true;
 	else inFocus = false;
+}
+
+bool checkForCollision(std::vector<SGNode *> &collidingNodesClustered, std::vector<SGNode *> &collidingNodesIndependent) {
+
+	for (SGNode *clusteredNode : collidingNodesClustered) {
+		for (SGNode *independentNode : collidingNodesIndependent) {
+
+			if (glm::distance(clusteredNode->item->getPosition(), independentNode->item->getPosition()) < 2.0f) {
+
+				nodeToDetach = clusteredNode->name;
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void handleCollision(std::vector<SGNode *> &collidingNodeVector, std::string collidingNode, SceneGraph *collidingSceneGraph) {
+
+	std::vector<SGNode *> tempChildren;
+
+	for (SGNode *node : collidingNodeVector) {
+		for (SGNode *child : node->children) {
+			if (child->name == collidingNode) {
+				collidingSceneGraph->root.children.push_back(child);
+			} else {
+				tempChildren.push_back(child);
+			}
+		}
+		node->children = tempChildren;
+		tempChildren.clear();
+
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -391,11 +430,32 @@ int main(int argc, char *argv[]) {
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
 	//ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0)); vatra
-	ParticleSpawner particleSpawner(1.0, 1.0, 2000, 200, 0.1, 1.0, 0.001, 2, glm::vec3(1.0f, 1.0f, 0.0f));
-	PaSpObject paspObject(glm::vec3(0.0, 0.0, 0.0), &particleSpawner, sjencar[4]);
-	paspObject.loadParticles();
-	renderer.registerPaspObject(&paspObject);
+	ParticleSpawner particleSpawner1(200.0, 200.0, 10000, 1000, 0.5, 10.0, 0.001, 2, glm::vec3(1.0f, 1.0f, 0.0f));
+	PaSpObject paspObject1(glm::vec3(0.0, 0.0, 0.0), &particleSpawner1, sjencar[4]);
+	renderer.registerPaspObject(&paspObject1);
 
+	ParticleSpawner particleSpawner2(50.0, 50.0, 10000, 10, 0.001, 10.0, 0.1, 1, glm::vec3(0.4f, 0.0f, 0.4f));
+	PaSpObject paspObject2(glm::vec3(0.0, 0.0, 0.0), &particleSpawner2, sjencar[4]);
+	renderer.registerPaspObject(&paspObject2);
+
+	/*
+	std::vector<ParticleSpawner *> spawners;
+	std::vector<PaSpObject *> objectsParticles;
+	float sign;
+
+	for (int i = 0; i < 4; i++) {
+		spawners.push_back(new ParticleSpawner(1.0, 1.0, 2000, 200, 0.1, 1.0, 0.001, 2, glm::vec3((float) rand() / RAND_MAX,
+																								  (float) rand() / RAND_MAX,
+																								  (float) rand() / RAND_MAX)));
+		if ((float) rand() / RAND_MAX > 0.5f) sign = 1.0f;
+		else sign = -1.0f;
+		objectsParticles.push_back(new PaSpObject(glm::vec3(((float) rand() / RAND_MAX) * sign * 50.0f + 50.0f,
+															((float) rand() / RAND_MAX) * sign * 50.0f + 50.0f,
+															((float) rand() / RAND_MAX) * sign * 50.0f + 50.0f), spawners[i], sjencar[4]));
+		renderer.registerPaspObject(objectsParticles[i]);
+	}
+	*/
+	
 	//gradimo graf scene
 	SceneGraph sceneGraph;
 
@@ -416,7 +476,8 @@ int main(int argc, char *argv[]) {
 		asteroids.push_back(new SGNode(objectsAsteroids[i], "asteroid_" + std::to_string(i), false));
 	}
 
-	SGNode particle1(&paspObject, "particles_1", true);
+	SGNode particle1(&paspObject1, "particles_1", true);
+	SGNode particle2(&paspObject2, "particles_2", true);
 
 	SGNode camera1(&camera, "camera_1", false);
 
@@ -455,6 +516,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	sceneGraph.root.children.push_back(&particle1);
+	sceneGraph.root.children.push_back(&particle2);
 
 	sceneGraph.root.children[0]->children.push_back(&reflector1);
 
@@ -475,6 +537,9 @@ int main(int argc, char *argv[]) {
 	//sceneGraph.rotateSubtree("reflector_1", glm::vec3(0.0, 1.0, 0.0), 200.0f);
 	inputManager.setReflector(&reflector1);
 
+	sceneGraph.moveSubtree("particles_1", glm::vec3(0.0, 0.0, 50.0));
+	sceneGraph.rotateSubtree("particles_1", glm::vec3(1.0, 0.0, 0.0), 45.0f);
+
 	sceneGraph.scaleSubtree("right_wing_base", glm::vec3(0.7, 0.7, 0.7));
 	sceneGraph.scaleSubtree("left_wing_base", glm::vec3(0.7, 0.7, 0.7));
 	sceneGraph.scaleSubtree("glass", glm::vec3(0.5, 0.5, 0.5));
@@ -490,7 +555,6 @@ int main(int argc, char *argv[]) {
 	sceneGraph.rotateSubtree("camera_1", glm::vec3(0.0, 1.0, 0.0), 200.0f);
 
 	//stvaramo crtaca putanje
-	
 	/*
 	Pathmaker pathmaker(sjencar[2], &camera);
 	
@@ -511,6 +575,19 @@ int main(int argc, char *argv[]) {
 	inputManager.addAnimator(&animator);
 	*/
 
+	//lista za provjeru kolizije
+	std::vector<SGNode *> spaceshipParts;
+	spaceshipParts.push_back(&spaceshipBase);
+	spaceshipParts.push_back(&spaceshipCockpit);
+	spaceshipParts.push_back(&spaceshipRightWingBase);
+	spaceshipParts.push_back(&spaceshipLeftWingBase);
+	spaceshipParts.push_back(&spaceshipPike);
+	spaceshipParts.push_back(&spaceshipGlass);
+	spaceshipParts.push_back(&spaceshipRightWing);
+	spaceshipParts.push_back(&spaceshipLeftWing);
+	spaceshipParts.push_back(&spaceshipRightWingTip);
+	spaceshipParts.push_back(&spaceshipLeftWingTip);
+
 	//glavna petlja
 	while(glfwWindowShouldClose(window) == false) {
 
@@ -520,6 +597,15 @@ int main(int argc, char *argv[]) {
 
 		if (inputManager.currentInputProfile == InputProfile::FlyingCamera) inputManager.handleInput(&camera1, inFocus);
 		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&spaceshipBase, inFocus);
+
+		collisionHappened = checkForCollision(spaceshipParts, asteroids);
+		if (collisionHappened) handleCollision(spaceshipParts, nodeToDetach, &sceneGraph);
+
+		if (inputManager.bVehicleDestroyed) {
+			for (int i = 0; i < sceneGraph.detachedNodes.size(); i++) {
+				sceneGraph.moveSubtree(sceneGraph.detachedNodes[i]->name, 0.2f * inputManager.partDirections[i]);
+			}
+		}
 
 		//iscrtavanje objekta
 		glUseProgram(sjencar[0]->ID);

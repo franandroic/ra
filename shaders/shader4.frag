@@ -14,10 +14,10 @@ void main()
 
     //FragColor = vec4(mix(mix(vec3(0.0, 0.0, 0.0), color, t_val_glob), vec3(1.0, 1.0, 1.0), t_val_loc), 1.0);
 
-    if (lifeTime < 1) {
-        FragColor = vec4(mix(vec3(0.7, 0.8, 0.5), color, t_val_loc), 1.0);
+    if (lifeTime < 8) {
+        FragColor = vec4(mix(vec3(0.8, 0.8, 0.0), color, t_val_loc), 1.0);
     } else {
-        FragColor = vec4(mix(vec3(0.2, 0.2, 0.2), vec3(1.0, 0.1, 0.0), t_val_glob), 1.0);
+        FragColor = vec4(mix(vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0), t_val_glob), 1.0);
     }
     
 }

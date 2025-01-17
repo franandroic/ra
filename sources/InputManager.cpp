@@ -52,11 +52,13 @@ InputManager::InputManager(GLFWwindow *inWindow, int width, int height, SceneGra
 
     cameraVelocity = 0.02f;
 
-    vehicleVelocity = 0.02f;
+    vehicleVelocity = 0.025f;
 
     cameraTurnRate = 1.5f;
 
     vehicleTurnRate = 0.1f;
+    
+    bVehicleDestroyed = false;
 
     glfwSetWindowUserPointer(inWindow, this);
     glfwSetKeyCallback(inWindow, keyCallbackStatic);
@@ -93,6 +95,8 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
         if (action == GLFW_RELEASE) setInputProfile(InputProfile::FlyingCamera);
     } else if (key == GLFW_KEY_2) {
         if (action == GLFW_RELEASE) setInputProfile(InputProfile::VehicleControl);
+    } else if (key == GLFW_KEY_BACKSPACE) {
+        if (action == GLFW_RELEASE) selfDestruct();
     }
 }
 
@@ -260,6 +264,21 @@ void InputManager::setInputProfile(InputProfile newInputProfile) {
 void InputManager::setReflector(SGNode *inReflector) {
 
     reflectorNode = inReflector;
-    //reflectorNode->doRotate = false;
-    
+}
+
+void InputManager::selfDestruct() {
+
+    if (currentInputProfile == InputProfile::FlyingCamera) {
+
+        sceneGraph->destroySubtree(cameraMountNode->name);
+
+        for (int i = 0; i < sceneGraph->detachedNodes.size(); i++) {
+            sceneGraph->root.children.push_back(sceneGraph->detachedNodes[i]);
+            partDirections.push_back(glm::normalize(glm::vec3(((float) rand() / RAND_MAX) * 2 - 1,
+                                                              ((float) rand() / RAND_MAX) * 2 - 1,
+                                                              ((float) rand() / RAND_MAX) * 2 - 1)));
+        }
+
+        bVehicleDestroyed = true;
+    }
 }

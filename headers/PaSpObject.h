@@ -34,13 +34,13 @@ private:
 
     std::chrono::duration<double> seconds_passed;
 
+    void loadParticles();
+
 public:
 
     void render(glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 perspectiveMatrix, double deltaTime);
 
     Shader *getShader();
-    
-    void loadParticles();
 
     void moveLocation(glm::vec3 newLocation);
 };

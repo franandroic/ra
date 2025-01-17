@@ -19,3 +19,8 @@ void SceneGraph::scaleSubtree(std::string nodeName, glm::vec3 factor) {
 
     root.scaleNode(nodeName, factor, false, glm::vec3(0.0f, 0.0f, 0.0f));
 }
+
+void SceneGraph::destroySubtree(std::string nodeName) {
+
+    root.detachNode(nodeName, false, detachedNodes);
+}
