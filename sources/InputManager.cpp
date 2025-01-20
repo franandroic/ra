@@ -127,12 +127,12 @@ void InputManager::handleInput(Transformable *transformable, bool inFocus) {
     }
 }
 
-void InputManager::handleInput(SGNode *node, bool inFocus) {
+void InputManager::handleInput(SGNode *node, bool inFocus, double deltaTime) {
 
     handleKeyboardInput(node->item);
     handleMouseInput(node->item, inFocus, false);
 
-    sceneGraph->moveSubtree(node->name, movementVector);
+    sceneGraph->moveSubtree(node->name, movementVector * (float) deltaTime);
     
     if (x_mouse < 0) {
         sceneGraph->rotateSubtree(node->name, glm::vec3(0.0f, 1.0f, 0.0f), -cameraTurnRate);
@@ -151,47 +151,47 @@ void InputManager::handleInput(SGNode *node, bool inFocus) {
     if (currentInputProfile == InputProfile::VehicleControl) {
         if (bLeft && rollDeg < rollConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            rollDeg += vehicleTurnRate;
+            rollDeg += vehicleTurnRate * (float) deltaTime;
         } else if (!bLeft && rollDeg > 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            rollDeg -= vehicleTurnRate;
+            rollDeg -= vehicleTurnRate * (float) deltaTime;
         } 
         if (bRight && rollDeg > -rollConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), -vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            rollDeg -= vehicleTurnRate;
+            rollDeg -= vehicleTurnRate * (float) deltaTime;
         } else if (!bRight && rollDeg < 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getFront(), vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            rollDeg += vehicleTurnRate;
+            rollDeg += vehicleTurnRate * (float) deltaTime;
         }
         if (bUp && pitchDeg > -pitchConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            pitchDeg -= vehicleTurnRate;
+            pitchDeg -= vehicleTurnRate * (float) deltaTime;
         } else if (!bUp && pitchDeg < 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            pitchDeg += vehicleTurnRate;
+            pitchDeg += vehicleTurnRate * (float) deltaTime;
         }
         if (bDown && pitchDeg < pitchConstraint) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            pitchDeg += vehicleTurnRate;
+            pitchDeg += vehicleTurnRate * (float) deltaTime;
         } else if (!bDown && pitchDeg > 0.0f) {
             cameraNode->doRotate = false;
-            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate);
+            sceneGraph->rotateSubtree(node->name, node->item->getRight(), -vehicleTurnRate * (float) deltaTime);
             cameraNode->doRotate = true;
-            pitchDeg -= vehicleTurnRate;
+            pitchDeg -= vehicleTurnRate * (float) deltaTime;
         }
     }
 

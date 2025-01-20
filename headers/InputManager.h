@@ -82,7 +82,7 @@ public:
 
     void handleInput(Transformable *transformable, bool inFocus);
 
-    void handleInput(SGNode *node, bool inFocus);
+    void handleInput(SGNode *node, bool inFocus, double deltaTime);
 
     void handleKeyboardInput(Transformable *transformable);
 

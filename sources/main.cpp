@@ -150,6 +150,8 @@ bool checkForCollision(std::vector<SGNode *> &collidingNodesClustered, std::vect
 
 				nodeToDetach = clusteredNode->name;
 
+				//std::cout << nodeToDetach << std::endl;
+
 				return true;
 			}
 		}
@@ -174,6 +176,22 @@ void handleCollision(std::vector<SGNode *> &collidingNodeVector, std::string col
 		tempChildren.clear();
 
 	}
+
+	/*
+	std::vector<SGNode *> tempNodeVector;
+	bool foundNodeToRemove = false;
+
+	collidingSceneGraph->destroySubtree(collidingNode);
+	for (int i = 0; i < collidingNodeVector.size(); i++) {
+		for (int j = 0; j < collidingSceneGraph->detachedNodes.size(); j++) {
+			if (collidingNodeVector[i]->name == collidingSceneGraph->detachedNodes[j]->name) {
+				foundNodeToRemove = true;
+			}
+		}
+		if (!foundNodeToRemove) tempNodeVector.push_back(collidingNodeVector[i]);
+		foundNodeToRemove = false;
+	}
+	*/
 }
 
 int main(int argc, char *argv[]) {
@@ -430,7 +448,7 @@ int main(int argc, char *argv[]) {
 	//stvaramo generator cestica
 	//width, height, maxNum, batchSize, batchSpawnFrequency, batchDuration, moveSpeed, moveID, baseColor
 	//ParticleSpawner particleSpawner(0.5, 0.5, 1500, 200, 0.3, 1.5, 0.0005, 0, glm::vec3(1.0, 0.0, 0.0)); vatra
-	ParticleSpawner particleSpawner1(200.0, 200.0, 10000, 1000, 0.5, 10.0, 0.001, 2, glm::vec3(1.0f, 1.0f, 0.0f));
+	ParticleSpawner particleSpawner1(200.0, 200.0, 10000, 1000, 0.5, 10.0, 0.001, 1, glm::vec3(1.0f, 1.0f, 0.0f));
 	PaSpObject paspObject1(glm::vec3(0.0, 0.0, 0.0), &particleSpawner1, sjencar[4]);
 	renderer.registerPaspObject(&paspObject1);
 
@@ -595,8 +613,8 @@ int main(int argc, char *argv[]) {
 
 		deltaTime = FPSManager.maintainFPS();
 
-		if (inputManager.currentInputProfile == InputProfile::FlyingCamera) inputManager.handleInput(&camera1, inFocus);
-		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&spaceshipBase, inFocus);
+		if (inputManager.currentInputProfile == InputProfile::FlyingCamera) inputManager.handleInput(&camera1, inFocus, deltaTime * 500);
+		else if (inputManager.currentInputProfile == InputProfile::VehicleControl) inputManager.handleInput(&spaceshipBase, inFocus, deltaTime * 600);
 
 		collisionHappened = checkForCollision(spaceshipParts, asteroids);
 		if (collisionHappened) handleCollision(spaceshipParts, nodeToDetach, &sceneGraph);
