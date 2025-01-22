@@ -1,11 +1,11 @@
 # ra
 *Fakultet elektrotehnike i računarstva - Računalna Animacija*
 
-**Cosmo-Cruiser**
-  \Svemirski brod u polju asteroida
+**Cosmo-Cruiser**\
+  Svemirski brod u polju asteroida
 
-**Instalacija**
-  \Upute za instalaciju i pokretanje nalaze se u pdf dokumentaciji
+**Instalacija**\
+  Upute za instalaciju i pokretanje nalaze se u pdf dokumentaciji
 
 **Kontrole**
   <ul>
