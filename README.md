@@ -35,5 +35,6 @@
   </ul>
 
 Snimka zaslona igre
+
 <img width="400" height="400" alt="2025FranAndroic" src="https://github.com/user-attachments/assets/04086bc2-8a7d-49f7-9c25-da5d1163a1eb" />
 
